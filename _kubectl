@@ -1,15 +1,11 @@
 #compdef kubectl
-# inspired by https://github.com/zsh-users/zsh-completions/blob/master/src/_golang
-
-typeset -A opt_args
-
-__kubectl_arguments() {
-    if zstyle -T ":completion:${curcontext}:" option-stacking; then
-        print -- -s
-    fi
-}
+# inspired by 
+#   https://github.com/zsh-users/zsh-completions/blob/master/src/_golang
+#   https://github.com/felixr/docker-zsh-completion/blob/master/_docker
+#   https://github.com/git/git/blob/master/contrib/completion/git-completion.zsh
 
 _kubectl(){
+  typeset -A opt_args
 
   local -a cmds
   cmds=(
