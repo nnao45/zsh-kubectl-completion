@@ -90,7 +90,26 @@ _kubectl(){
     args)
         case $words[1] in
           create)
-            _arguments \
+
+            local -a create_cmds
+            create_cmds=(
+            'clusterrole:Create a ClusterRole.'
+            'clusterrolebinding:Create a ClusterRoleBinding for a particular ClusterRole'
+            'configmap:Create a configmap from a local file, directory or literal value'
+            'deployment:Create a deployment with the specified name.'
+            'job:Create a job with the specified name.'
+            'namespace:Create a namespace with the specified name'
+            'poddisruptionbudget:Create a pod disruption budget with the specified name.'
+            'priorityclass:Create a priorityclass with the specified name.'
+            'quota:Create a quota with the specified name.'
+            'role:Create a role with single rule.'
+            'rolebinding:Create a RoleBinding for a particular Role or ClusterRole'
+            'secret:Create a secret using specified subcommand'
+            'service:Create a service using specified subcommand.'
+            'serviceaccount:Create a service account with the specified name'
+            )
+
+            _arguments : \
               '--allow-missing-template-keys=true[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
               '--dry-run[If true, only print the object that would be sent, without sending it.]' \
               '--edit[Edit the API resource before creating]' \
@@ -109,6 +128,7 @@ _kubectl(){
               '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
               '--validate[If true, use a schema to validate the input before sending it]' \
               '--windows-line-endings[Only relevant if --edit=true. Defaults to the line ending native to your platform.]' \
+              "1: :{_describe 'create_cmd' create_cmds}"
               ;;
         esac
         ;;
