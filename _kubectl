@@ -159,7 +159,7 @@ _kubectl(){
           '--save-config[If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.]' \
           '--selector[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
           '--session-affinity[If non-empty, set the session affinity for the service to this; legal values: '\''None'\'', '\''ClientIP'\'']' \
-          '--target-port[Name or number for the port on the container that the service should direct traffic to. Optional.]'
+          '--target-port[Name or number for the port on the container that the service should direct traffic to. Optional.]' \
           '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
           '--type[Type for this service: ClusterIP, NodePort, LoadBalancer, or ExternalName. Default is '\''ClusterIP'\''.]' \
           "1: :{_describe 'expose_cmd' expose_cmds}"
