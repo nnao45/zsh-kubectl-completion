@@ -1,4 +1,5 @@
 #compdef kubectl
+# Support kubectl version v1.12.2
 # inspired by
 #   https://github.com/zsh-users/zsh-completions/blob/master/src/_golang
 #   https://github.com/felixr/docker-zsh-completion/blob/master/_docker
@@ -18,7 +19,6 @@ _kubectl(){
   'edit:Edit a resource on the server'
   'delete:Delete resources by filenames, stdin, resources and names, or by resources and label selector'
   'rollout:Manage the rollout of a resource'
-  'rolling-update:Perform a rolling update of the given ReplicationController'
   'scale:Set a new size for a Deployment, ReplicaSet, Replication Controller, or Job'
   'autoscale:Auto-scale a Deployment, ReplicaSet, or ReplicationController'
   'certificate:Modify certificate resources.'
@@ -39,15 +39,19 @@ _kubectl(){
   'apply:Apply a configuration to a resource by filename or stdin'
   'patch:Update field(s) of a resource using strategic merge patch'
   'replace:Replace a resource by filename or stdin'
+  'wait:Experimental\: Wait for a specific condition on one or many resources.'
   'convert:Convert config files between different API versions'
   'label:Update the labels on a resource'
   'annotate:Update the annotations on a resource'
   'completion:Output shell completion code for the specified shell (bash or zsh)'
-  'api-versions:Print the supported API versions on the server, in the form of group/version'
+  'alpha:Commands for features in alpha'
+  'api-resources:Print the supported API resources on the server'
+  'api-versions:Print the supported API versions on the server, in the form of \"group/version\"'
   'config:Modify kubeconfig files'
-  'help:Help about any command'
   'plugin:Runs a command-line plugin'
   'version:Print the client and server version information'
+  'help:Help about any command'
+  'options:List of global command-line options (applies to all commands).'
   )
 
   _arguments : \
