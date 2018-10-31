@@ -76,11 +76,11 @@ _kubectl(){
     '--context[The name of the kubeconfig context to use]' \
     '--help[Get more information about a this command help]' \
     '--insecure-skip-tls-verify[If true, the server'\''s certificate will not be checked for validity. This will make your HTTPS connections insecure]' \
-    '--kubeconfig[Path to the kubeconfig file to use for CLI requests:kubeconfig:_files.]' \
+    '--kubeconfig[Path to the kubeconfig file to use for CLI requests.]:kubeconfig:_files' \
     '--log-backtrace-at[when logging hits line file[N, emit a stack trace]' \
     '--log-dir[If non-empty, write log files in this directory]:dirs:_files' \
     '--log-flush-frequency[Maximum number of seconds between log flushes]' \
-    '--logtostderr=true[log to standard error instead of files]' \
+    '--logtostderr=true[log to standard error instead of files]:files:_files' \
     '--match-server-version[Require server version to match client version]' \
     '--namespace[If present, the namespace scope for this CLI request]:namespaecs:__kube_get_namespaces' \
     '--password[Password for basic authentication to the API server]' \
