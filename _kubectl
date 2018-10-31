@@ -548,6 +548,7 @@ _kubectl(){
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
             '--type[The type of patch being provided; one of \[json merge strategic\]]' \
             "*: :{_describe 'patch_nodes' _kube_api_resources}"
+        ;;
       esac
     ;;
   esac
