@@ -9,7 +9,7 @@ _kube_get_pods=(`kubectl get pods --all-namespaces | tail -n +2 | awk '{print $2
 _kube_get_nodes=(`kubectl get node | tail -n +2 | awk '{print $1}'`)
 _kube_api_resources=(`kubectl api-resources | tail -n +2 | awk '{print $1}'`)
 
-_kube_get_namespaces(){
+__kube_get_namespaces(){
   local -a _ns
   _ns=(`kubectl get namespace | tail -n +2 | awk '{print $1}'`)
   compadd -a _ns
@@ -68,7 +68,7 @@ _kubectl(){
     "(-)"--alsologtostderr'[log to standard error as well as files]' \
     "(-)"--as'[Username to impersonate for the operation]' \
     "(-)"--as-group'[Group to impersonate for the operation, this flag can be repeated to specify multiple groups.]' \
-    "(-)"--cache-dir'[Default HTTP cache directory]' \
+    "(-)"--cache-dir'[Default HTTP cache directory]:dirs:_files' \
     "(-)"--certificate-authority'[Path to a cert file for the certificate authority]' \
     "(-)"--client-certificate'[Path to a client certificate file for TLS]' \
     "(-)"--client-key'[Path to a client key file for TLS]' \
@@ -78,11 +78,11 @@ _kubectl(){
     "(-)"--insecure-skip-tls-verify'[If true, the server'\''s certificate will not be checked for validity. This will make your HTTPS connections insecure]' \
     "(-)"--kubeconfig'[Path to the kubeconfig file to use for CLI requests.]' \
     "(-)"--log-backtrace-at'[when logging hits line file:N, emit a stack trace]' \
-    "(-)"--log-dir'[If non-empty, write log files in this directory]' \
+    "(-)"--log-dir'[If non-empty, write log files in this directory]:dirs:_files' \
     "(-)"--log-flush-frequency'[Maximum number of seconds between log flushes]' \
     "(-)"--logtostderr'[log to standard error instead of files]' \
     "(-)"--match-server-version'[Require server version to match client version]' \
-    "(-)"{-n,--namespace}'[If present, the namespace scope for this CLI request]:namespace:_kube_get_namespaces' \
+    "(-)"{-n,--namespace}'[If present, the namespace scope for this CLI request]:namespace:__kube_get_namespaces' \
     "(-)"--password'[Password for basic authentication to the API server]' \
     "(-)"--request-timeout'[The length of time to wait before giving up on a single server request. Non-zero values should contain a corresponding time unit (e.g. 1s, 2m, 3h). A value of zero means don'\''t timeout requests.]' \
     "(-)"{-s,--server}'[The address and port of the Kubernetes API server]' \
@@ -123,7 +123,7 @@ _kubectl(){
             '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
             '--dry-run[If true, only print the object that would be sent, without sending it.]' \
             '--edit[Edit the API resource before creating]' \
-            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]' \
+            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]:files:_files' \
             '--help[Get more information about a this command help]' \
             '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|wide|name|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...See custom columns \[http://kubernetes.io/docs/user-guide/kubectl-overview/#custom-columns\], golang template \[http://golang.org/pkg/text/template/#pkg-overview\] and jsonpath template \[http://kubernetes.io/docs/user-guide/jsonpath\].]' \
             '--raw[Raw URI to POST to the server.  Uses the transport specified by the kubeconfig file.]' \
@@ -153,7 +153,7 @@ _kubectl(){
             '--cluster-ip[ClusterIP to be assigned to the service. Leave empty to auto-allocate, or set to '\''None'\'' to create a headless service.]' \
             '--dry-run[If true, only print the object that would be sent, without sending it.]' \
             '--external-ip[Additional external IP address (not managed by Kubernetes) to accept for the service. If this IP is routed to a node, the service can be accessed by this IP in addition to its generated service IP.]' \
-            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]' \
+            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]:files:_files' \
             '--generator[The name of the API generator to use. There are 2 generators: '\''service/v1'\'' and '\''service/v2'\''. The only difference between them is that service port in v1 is named '\''default'\'', while it is left unnamed in v2. Default is '\''service/v2'\''.]' \
             '--help[Get more information about a this command help]' \
             '(-l --labels)'{-l,--labels}'[Labels to apply to the service created by this call.]' \
@@ -185,7 +185,7 @@ _kubectl(){
             '--dry-run[If true, only print the object that would be sent, without sending it.]' \
             '--env[Environment variables to set in the container]' \
             '--expose[If true, a public, external service is created for the container(s) which are run]' \
-            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]' \
+            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]:files:_files' \
             '--force[Only used when grace-period=0. If true, immediately remove resources from API and bypass graceful deletion. Note that immediate deletion of some resources may result in inconsistency or data loss and requires confirmation.]' \
             '--generator[The name of the API generator to use. There are 2 generators: '\''service/v1'\'' and '\''service/v2'\''. The only difference between them is that service port in v1 is named '\''default'\'', while it is left unnamed in v2. Default is '\''service/v2'\''.]' \
             '--help[Get more information about a this command help]' \
@@ -232,12 +232,12 @@ _kubectl(){
           )
 
           _arguments \
-            "*:: :{_describe 'set_cmd' set_cmds}"
+            "*: :{_describe 'set_cmd' set_cmds}"
         ;;
 
         explain)
           _arguments \
-          "*:: :{_describe 'explain_cmd' _kube_api_resources}"
+            "*: :{_describe 'explain_cmd' _kube_api_resources}"
         ;;
 
         get)
@@ -264,13 +264,13 @@ _kubectl(){
             '--use-openapi-print-columns[If true, use x-kubernetes-print-column metadata (if present) from the OpenAPI schema for displaying a resource.]' \
             '(-w --watch)'{-w,--watch}'[After listing/getting the requested object, watch for changes. Uninitialized objects are excluded if no object name is provided.]' \
             '--watch-only[Watch for changes to the requested object(s), without listing/getting first.]' \
-            "*:: :{_describe 'get_resources' _kube_api_resources}"
+            "*: :{_describe 'get_resources' _kube_api_resources}"
         ;;
 
         edit)
           _arguments \
             '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
-            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]' \
+            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]:files:_files' \
             '--include-uninitialized[If true, the kubectl command applies to uninitialized objects. If explicitly set to false, this flag overrides other flags that make the kubectl commands apply to uninitialized objects, e.g., "--all". Objects with empty metadata.initializers are regarded as initialized.]' \
             '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|wide|name|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...See custom columns \[http://kubernetes.io/docs/user-guide/kubectl-overview/#custom-columns\], golang template \[http://golang.org/pkg/text/template/#pkg-overview\] and jsonpath template \[http://kubernetes.io/docs/user-guide/jsonpath\].]' \
             '--output-patch[Output the patch if the resource is edited.]' \
@@ -280,7 +280,7 @@ _kubectl(){
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
             '--validate[If true, use a schema to validate the input before sending it]' \
             '--windows-line-endings[Defaults to the line ending native to your platform.]' \
-            "*:: :{_describe 'edit_resources' _kube_api_resources}"
+            "*: :{_describe 'edit_resources' _kube_api_resources}"
         ;;
 
         delete)
@@ -288,7 +288,7 @@ _kubectl(){
             '--all[Delete all resources, including uninitialized ones, in the namespace of the specified resource types.]' \
             '--cascade[If true, cascade the deletion of the resources managed by this resource (e.g. Pods created by a ReplicationController).  Default true.]' \
             '--field-selector[Selector (field query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. --field-selector key1=value1,key2=value2). The server only supports a limited number of field queries per type.]' \
-            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]' \
+            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]:files:_files' \
             '--force[Only used when grace-period=0. If true, immediately remove resources from API and bypass graceful deletion. Note that immediate deletion of some resources may result in inconsistency or data loss and requires confirmation.]' \
             '--grace-period[Period of time in seconds given to the resource to terminate gracefully. Ignored if negative. Set to 1 for immediate shutdown. Can only be set to 0 when --force is true (force deletion).]' \
             '--ignore-not-found[Treat \"resource not found\" as a successful delete. Defaults to \"true\" when --all is specified.]' \
@@ -299,7 +299,7 @@ _kubectl(){
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--timeout[The length of time to wait before giving up on a delete, zero means determine a timeout from the size of the object]' \
             '--wait[If true, wait for resources to be gone before returning. This waits for finalizers.]' \
-            "1: :{_describe 'delete_resources' _kube_api_resources}"
+            "*: :{_describe 'delete_resources' _kube_api_resources}"
         ;;
 
         rollout)
@@ -314,7 +314,7 @@ _kubectl(){
           )
 
           _arguments \
-            "*:: :{_describe 'rollout_cmd' rollout_cmds}"
+            "*: :{_describe 'rollout_cmd' rollout_cmds}"
         ;;
 
         scale)
@@ -322,7 +322,7 @@ _kubectl(){
             '--all[Select all resources in the namespace of the specified resource types]' \
             '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
             '--current-replicas[Precondition for current size. Requires that the current size of the resource match this value in order to scale.]' \
-            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]' \
+            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]:files:_files' \
             '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|wide|name|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...See custom columns \[http://kubernetes.io/docs/user-guide/kubectl-overview/#custom-columns\], golang template \[http://golang.org/pkg/text/template/#pkg-overview\] and jsonpath template \[http://kubernetes.io/docs/user-guide/jsonpath\].]' \
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
             '--replicas[The new desired number of replicas. Required.]' \
@@ -338,7 +338,7 @@ _kubectl(){
             '--cpu-percent[The target average CPU utilization (represented as a percent of requested CPU) over all the pods. If it'\''s not specified or negative, a default autoscaling policy will be used.]' \
             '--dry-run[If true, only print the object that would be sent, without sending it.]' \
             '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]' \
-            '--generator[The name of the API generator to use. Currently there is only 1 generator.]' \
+            '--generator[The name of the API generator to use. Currently there is only 1 generator.]:files:_files' \
             '--max[The upper limit for the number of pods that can be set by the autoscaler. Required.]' \
             '--min[The lower limit for the number of pods that can be set by the autoscaler. If it'\''s not specified or negative, the server will apply a default value.]' \
             '--name[The name for the newly created object. If not specified, the name of the input resource will be used.]' \
@@ -358,7 +358,7 @@ _kubectl(){
           )
 
           _arguments \
-            "*:: :{_describe 'certificate_cmd' certificate_cmds}"
+            "*: :{_describe 'certificate_cmd' certificate_cmds}"
         ;;
 
         cluster-info)
@@ -369,7 +369,7 @@ _kubectl(){
           )
 
           _arguments \
-            "*:: :{_describe 'clusterinfo_cmd' clusterinfo_cmds}"
+            "*: :{_describe 'clusterinfo_cmd' clusterinfo_cmds}"
         ;;
 
         top)
@@ -386,14 +386,14 @@ _kubectl(){
 
         cordon)
           _arguments \
-            "*:: :{_describe 'cordon_cmd' _kube_get_nodes}"
+            "*: :{_describe 'cordon_cmd' _kube_get_nodes}"
         ;;
 
         uncordon)
           _arguments \
             '--dry-run[If true, only print the object that would be sent, without sending it.]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
-            "*:: :{_describe 'uncordon_node' _kube_get_nodes}"
+            "*: :{_describe 'uncordon_node' _kube_get_nodes}"
         ;;
 
         drain)
@@ -406,7 +406,7 @@ _kubectl(){
             '--pod-selector[Label selector to filter pods on the node]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--timeout[The length of time to wait before giving up, zero means infinite]' \
-            "*:: :{_describe 'drain_cmd' _kube_get_nodes}"
+            "*: :{_describe 'drain_cmd' _kube_get_nodes}"
         ;;
 
         taint)
@@ -418,18 +418,18 @@ _kubectl(){
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
             '--validate[If true, use a schema to validate the input before sending it]' \
-            "*:: :{_describe 'drain_node' _kube_get_nodes}"
+            "*: :{_describe 'drain_node' _kube_get_nodes}"
         ;;
 
         describe)
           _arguments \
             '--all-namespaces[If present, list the requested object(s) across all namespaces. Namespace in current context is ignored even if specified with --namespace.]' \
-            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to describe the resource]' \
+            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to describe the resource]:files:_files' \
             '--include-uninitialized[If true, the kubectl command applies to uninitialized objects. If explicitly set to false, this flag overrides other flags that make the kubectl commands apply to uninitialized objects, e.g., "--all". Objects with empty metadata.initializers are regarded as initialized.]' \
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--show-events[If true, display events related to the described object.]' \
-            "1: :{_describe 'describe_node' _kube_api_resources}"
+            "*: :{_describe 'describe_node' _kube_api_resources}"
         ;;
 
         logs)
@@ -445,7 +445,7 @@ _kubectl(){
             '--since-time[Only return logs after a specific date (RFC3339). Defaults to all logs. Only one of since-time / since may be used.]' \
             '--tail[Lines of recent log file to display. Defaults to -1 with no selector, showing all log lines otherwise 10, if a selector is provided.]' \
             '--timestamps[Include timestamps on each line in the log output]' \
-            "1: :{_describe 'logs_pod' _kube_get_pods}"
+            "*: :{_describe 'logs_pod' _kube_get_pods}"
         ;;
 
         attach)
@@ -454,7 +454,7 @@ _kubectl(){
             '--pod-running-timeout[The length of time (like 5s, 2m, or 3h, higher than zero) to wait until at least one pod is running]' \
             '(-i --stdin)'{-i,--stdin}'[Pass stdin to the container]' \
             '(-t --tty)'{-t,--tty}'[Stdin is a TTY]' \
-            "*:: :{_describe 'attach_pod' _kube_get_pods}"
+            "*: :{_describe 'attach_pod' _kube_get_pods}"
         ;;
 
         exec)
@@ -463,7 +463,7 @@ _kubectl(){
             '(-p --pod)'{-p,--pod}'[Pod name]' \
             '(-i --stdin)'{-i,--stdin}'[Pass stdin to the container]' \
             '(-t --tty)'{-t,--tty}'[Stdin is a TTY]' \
-            "*:: :{_describe 'exec_pod' _kube_get_pods}"
+            "*: :{_describe 'exec_pod' _kube_get_pods}"
         ;;
 
         port-forward)
@@ -491,6 +491,7 @@ _kubectl(){
         ;;
 
         auth)
+
           local -a auth_cmds
           auth_cmds=(
           'can-i:Check whether an action is allowed'
@@ -498,8 +499,55 @@ _kubectl(){
           )
 
           _arguments \
-            "*:: :{_describe 'auth_cmd' auth_cmds}"
+            "*: :{_describe 'auth_cmd' auth_cmds}"
         ;;
+
+        apply)
+
+          local -a apply_cmds
+          apply_cmds=(
+          'edit-last-applied:Edit latest last-applied-configuration annotations of a resource/object'
+          'set-last-applied:Set the last-applied-configuration annotation on a live object to match the contents of a file.'
+          'view-last-applied:View latest last-applied-configuration annotations of a resource/object'
+          )
+
+          _arguments \
+            '--all[Select all resources in the namespace of the specified resource types.]' \
+            '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
+            '--cascade[If true, cascade the deletion of the resources managed by this resource (e.g. Pods created by a ReplicationController).  Default true.]' \
+            '--dry-run[If true, only print the object that would be sent, without sending it.]' \
+            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]:files:_files' \
+            '--force[Only used when grace-period=0. If true, immediately remove resources from API and bypass graceful deletion. Note that immediate deletion of some resources may result in inconsistency or data loss and requires confirmation.]' \
+            '--grace-period[Period of time in seconds given to the resource to terminate gracefully. Ignored if negative. Set to 1 for immediate shutdown. Can only be set to 0 when --force is true (force deletion).]' \
+            '--include-uninitialized[If true, the kubectl command applies to uninitialized objects. If explicitly set to false, this flag overrides other flags that make the kubectl commands apply to uninitialized objects, e.g., \"--all\". Objects with empty metadata.initializers are regarded as initialized.]' \
+            '--openapi-patch[If true, use openapi to calculate diff when the openapi presents and the resource can be found in the openapi spec. Otherwise, fall back to use baked-in types.]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]' \
+            '--overwrite[Automatically resolve conflicts between the modified and live configuration by using values from the modified configuration]' \
+            '--prune[Automatically delete resource objects, including the uninitialized ones, that do not appear in the configs and are created by either apply or create --save-config. Should be used with either -l or --all.]' \
+            '--prune-whitelist[Overwrite the default whitelist with <group/version/kind> for --prune]' \
+            '--record[Record current kubectl command in the resource annotation. If set to false, do not record the command. If set to true, record the command. If not set, default to updating the existing annotation value only if one already exists.]' \
+            '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
+            '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
+            '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
+            '--timeout[The length of time to wait before giving up on a delete, zero means determine a timeout from the size of the object]' \
+            '--validate[If true, use a schema to validate the input before sending it]' \
+            '--wait[If true, wait for resources to be gone before returning. This waits for finalizers.]' \
+            "*: :{_describe 'apply_cmd' apply_cmds}"
+        ;;
+
+        patch)
+          _arguments \
+            '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
+            '--dry-run[If true, only print the object that would be sent, without sending it.]' \
+            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]:files:_files' \
+             '--local[If true, patch will operate on the content of the file, not the server-side resource.]' \
+             '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]' \
+             '(-p --patch)'{-p,--patch}'[The patch to be applied to the resource JSON file.]' \
+             '--record[Record current kubectl command in the resource annotation. If set to false, do not record the command. If set to true, record the command. If not set, default to updating the existing annotation value only if one already exists.]' \
+             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
+             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
+             '--type[The type of patch being provided; one of \[json merge strategic\]]' \
+            "*: :{_describe 'patch_nodes' _kube_api_resources}"
       esac
     ;;
   esac
