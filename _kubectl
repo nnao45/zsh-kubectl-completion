@@ -5,8 +5,43 @@
 #   https://github.com/felixr/docker-zsh-completion/blob/master/_docker
 #   https://github.com/git/git/blob/master/contrib/completion/git-completion.zsh
 
+_kube_get_pods=(`kubectl get pods --all-namespaces | tail -n +2 | awk '{print $2}'`)
+_kube_get_nodes=(`kubectl get node | tail -n +2 | awk '{print $1}'`)
+_kube_api_resources=(`kubectl api-resources | tail -n +2 | awk '{print $1}'`)
+
 _kubectl(){
   typeset -A opt_args
+
+  local -a gflags
+  gflags=(
+  '--alsologtostderr:log to standard error as well as files'
+  '--as:Username to impersonate for the operation'
+  '--as-group:Group to impersonate for the operation, this flag can be repeated to specify multiple groups.'
+  '--cache-dir:Default HTTP cache directory'
+  '--certificate-authority: Path to a cert file for the certificate authority'
+  '--client-certificate:Path to a client certificate file for TLS'
+  '--client-key:Path to a client key file for TLS'
+  '--cluster:The name of the kubeconfig cluster to use'
+  '--context:The name of the kubeconfig context to use'
+  '--help:Get more information about a this command help'
+  '--insecure-skip-tls-verify:If true, the server'\''s certificate will not be checked for validity. This will make your HTTPS connections insecure'
+  '--kubeconfig:Path to the kubeconfig file to use for CLI requests.'
+  '--log-backtrace-at:when logging hits line file:N, emit a stack trace'
+  '--log-dir:If non-empty, write log files in this directory'
+  '--log-flush-frequency:Maximum number of seconds between log flushes'
+  '--logtostderr=true:log to standard error instead of files'
+  '--match-server-version:Require server version to match client version'
+  '--namespace:If present, the namespace scope for this CLI request'
+  '--password:Password for basic authentication to the API server'
+  '--request-timeout:The length of time to wait before giving up on a single server request. Non-zero values should contain a corresponding time unit (e.g. 1s, 2m, 3h). A value of zero means don'\''t timeout requests.'
+  '--server:The address and port of the Kubernetes API server'
+  '--stderrthreshold:logs at or above this threshold go to stderr'
+  '--token:Bearer token for authentication to the API server'
+  '--user:The name of the kubeconfig user to use'
+  '--username:Username for basic authentication to the API server'
+  '--v:level for V logs'
+  '--vmodule:comma-separated list of pattern=N settings for file-filtered logging'
+  )
 
   local -a cmds
   cmds=(
@@ -54,34 +89,34 @@ _kubectl(){
   'options:List of global command-line options (applies to all commands).'
   )
 
-  _arguments : \
-    '--alsologtostderr[log to standard error as well as files]' \
-    '--as[Username to impersonate for the operation]' \
-    '--as-group[Group to impersonate for the operation, this flag can be repeated to specify multiple groups.]' \
-    '--cache-dir[Default HTTP cache directory]' \
-    '--certificate-authority[ Path to a cert file for the certificate authority]' \
-    '--client-certificate[Path to a client certificate file for TLS]' \
-    '--client-key[Path to a client key file for TLS]' \
-    '--cluster[The name of the kubeconfig cluster to use]' \
-    '--context[The name of the kubeconfig context to use]' \
-    '--help[Get more information about a this command help]' \
-    '--insecure-skip-tls-verify[If true, the server'\''s certificate will not be checked for validity. This will make your HTTPS connections insecure]' \
-    '--kubeconfig[Path to the kubeconfig file to use for CLI requests.]' \
-    '--log-backtrace-at[when logging hits line file:N, emit a stack trace]' \
-    '--log-dir[If non-empty, write log files in this directory]' \
-    '--log-flush-frequency[Maximum number of seconds between log flushes]' \
-    '--logtostderr=true[log to standard error instead of files]' \
-    '--match-server-version[Require server version to match client version]' \
-    '(-n --namespace)'{-n,--namespace}'[If present, the namespace scope for this CLI request]' \
-    '--password[Password for basic authentication to the API server]' \
-    '--request-timeout[The length of time to wait before giving up on a single server request. Non-zero values should contain a corresponding time unit (e.g. 1s, 2m, 3h). A value of zero means don'\''t timeout requests.]' \
-    '(-s --server)'{-s,--server}'[The address and port of the Kubernetes API server]' \
-    '--stderrthreshold[logs at or above this threshold go to stderr]' \
-    '--token[Bearer token for authentication to the API server]' \
-    '--user[The name of the kubeconfig user to use]' \
-    '--username[Username for basic authentication to the API server]' \
-    '(-v --v)'{-v,--v}'[level for V logs]' \
-    '--vmodule[comma-separated list of pattern=N settings for file-filtered logging]' \
+  _arguments -C \
+    "(-)"--alsologtostderr'[log to standard error as well as files]' \
+    "(-)"--as'[Username to impersonate for the operation]' \
+    "(-)"--as-group'[Group to impersonate for the operation, this flag can be repeated to specify multiple groups.]' \
+    "(-)"--cache-dir'[Default HTTP cache directory]' \
+    "(-)"--certificate-authority'[Path to a cert file for the certificate authority]' \
+    "(-)"--client-certificate'[Path to a client certificate file for TLS]' \
+    "(-)"--client-key'[Path to a client key file for TLS]' \
+    "(-)"--cluster'[The name of the kubeconfig cluster to use]' \
+    "(-)"--context'[The name of the kubeconfig context to use]' \
+    "(-)"--help'[Get more information about a this command help]' \
+    "(-)"--insecure-skip-tls-verify'[If true, the server'\''s certificate will not be checked for validity. This will make your HTTPS connections insecure]' \
+    "(-)"--kubeconfig'[Path to the kubeconfig file to use for CLI requests.]' \
+    "(-)"--log-backtrace-at'[when logging hits line file:N, emit a stack trace]' \
+    "(-)"--log-dir'[If non-empty, write log files in this directory]' \
+    "(-)"--log-flush-frequency'[Maximum number of seconds between log flushes]' \
+    "(-)"--logtostderr'[log to standard error instead of files]' \
+    "(-)"--match-server-version'[Require server version to match client version]' \
+    "(-)"{-n,--namespace}'[If present, the namespace scope for this CLI request]' \
+    "(-)"--password'[Password for basic authentication to the API server]' \
+    "(-)"--request-timeout'[The length of time to wait before giving up on a single server request. Non-zero values should contain a corresponding time unit (e.g. 1s, 2m, 3h). A value of zero means don'\''t timeout requests.]' \
+    "(-)"{-s,--server}'[The address and port of the Kubernetes API server]' \
+    "(-)"--stderrthreshold'[logs at or above this threshold go to stderr]' \
+    "(-)"--token'[Bearer token for authentication to the API server]' \
+    "(-)"--user'[The name of the kubeconfig user to use]' \
+    "(-)"--username'[Username for basic authentication to the API server]' \
+    "(-)"{-v,--v}'[level for V logs]' \
+    "(-)"--vmodule'[comma-separated list of pattern=N settings for file-filtered logging]' \
     "1: :{_describe 'cmd' cmds}" \
     '*:: :->args'
 
@@ -109,7 +144,7 @@ _kubectl(){
           'serviceaccount:Create a service account with the specified name'
           )
 
-          _arguments : \
+          _arguments \
             '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
             '--dry-run[If true, only print the object that would be sent, without sending it.]' \
             '--edit[Edit the API resource before creating]' \
@@ -124,7 +159,7 @@ _kubectl(){
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
             '--validate[If true, use a schema to validate the input before sending it]' \
             '--windows-line-endings[Only relevant if --edit=true. Defaults to the line ending native to your platform.]' \
-            "1: :{_describe 'create_cmd' create_cmds}"
+            "*: :{_describe 'create_cmd' create_cmds}"
         ;;
 
         expose)
@@ -138,31 +173,357 @@ _kubectl(){
           'replicaset'
           )
 
-          _arguments : \
-          '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
-          '--cluster-ip[ClusterIP to be assigned to the service. Leave empty to auto-allocate, or set to '\''None'\'' to create a headless service.]' \
-          '--dry-run[If true, only print the object that would be sent, without sending it.]' \
-          '--external-ip[Additional external IP address (not managed by Kubernetes) to accept for the service. If this IP is routed to a node, the service can be accessed by this IP in addition to its generated service IP.]' \
-          '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]' \
-          '--generator[The name of the API generator to use. There are 2 generators: '\''service/v1'\'' and '\''service/v2'\''. The only difference between them is that service port in v1 is named '\''default'\'', while it is left unnamed in v2. Default is '\''service/v2'\''.]' \
-          '--help[Get more information about a this command help]' \
-          '(-l --labels)'{-l,--labels}'[Labels to apply to the service created by this call.]' \
-          '--load-balancer-ip[IP to assign to the LoadBalancer. If empty, an ephemeral IP will be created and used \(cloud-provider specific\).]' \
-          '--include-extended-apis[If true, include definitions of new APIs via calls to the API server. \[default true\]]' \
-          '--name[The name for the newly created object.]' \
-          '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|wide|name|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...See custom columns \[http://kubernetes.io/docs/user-guide/kubectl-overview/#custom-columns\], golang template \[http://golang.org/pkg/text/template/#pkg-overview\] and jsonpath template \[http://kubernetes.io/docs/user-guide/jsonpath\].]' \
-          '--overrides[An inline JSON override for the generated object. If this is non-empty, it is used to override the generated object. Requires that the object supply a valid apiVersion field. ]' \
-          '--port[The port that the service should serve on. Copied from the resource being exposed, if unspecified]' \
-          '--protocol[The network protocol for the service to be created. Default is '\''TCP'\''.]' \
-          '--record[Record current kubectl command in the resource annotation. If set to false, do not record the command. If set to true, record the command. If not set, default to updating the existing annotation value only if one already exists.]' \
-          '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
-          '--save-config[If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.]' \
-          '--selector[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
-          '--session-affinity[If non-empty, set the session affinity for the service to this; legal values: '\''None'\'', '\''ClientIP'\'']' \
-          '--target-port[Name or number for the port on the container that the service should direct traffic to. Optional.]' \
-          '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
-          '--type[Type for this service: ClusterIP, NodePort, LoadBalancer, or ExternalName. Default is '\''ClusterIP'\''.]' \
-          "1: :{_describe 'expose_cmd' expose_cmds}"
+          _arguments \
+            '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
+            '--cluster-ip[ClusterIP to be assigned to the service. Leave empty to auto-allocate, or set to '\''None'\'' to create a headless service.]' \
+            '--dry-run[If true, only print the object that would be sent, without sending it.]' \
+            '--external-ip[Additional external IP address (not managed by Kubernetes) to accept for the service. If this IP is routed to a node, the service can be accessed by this IP in addition to its generated service IP.]' \
+            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]' \
+            '--generator[The name of the API generator to use. There are 2 generators: '\''service/v1'\'' and '\''service/v2'\''. The only difference between them is that service port in v1 is named '\''default'\'', while it is left unnamed in v2. Default is '\''service/v2'\''.]' \
+            '--help[Get more information about a this command help]' \
+            '(-l --labels)'{-l,--labels}'[Labels to apply to the service created by this call.]' \
+            '--load-balancer-ip[IP to assign to the LoadBalancer. If empty, an ephemeral IP will be created and used \(cloud-provider specific\).]' \
+            '--include-extended-apis[If true, include definitions of new APIs via calls to the API server. \[default true\]]' \
+            '--name[The name for the newly created object.]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|wide|name|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...See custom columns \[http://kubernetes.io/docs/user-guide/kubectl-overview/#custom-columns\], golang template \[http://golang.org/pkg/text/template/#pkg-overview\] and jsonpath template \[http://kubernetes.io/docs/user-guide/jsonpath\].]' \
+            '--overrides[An inline JSON override for the generated object. If this is non-empty, it is used to override the generated object. Requires that the object supply a valid apiVersion field. ]' \
+            '--port[The port that the service should serve on. Copied from the resource being exposed, if unspecified]' \
+            '--protocol[The network protocol for the service to be created. Default is '\''TCP'\''.]' \
+            '--record[Record current kubectl command in the resource annotation. If set to false, do not record the command. If set to true, record the command. If not set, default to updating the existing annotation value only if one already exists.]' \
+            '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
+            '--save-config[If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.]' \
+            '--selector[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
+            '--session-affinity[If non-empty, set the session affinity for the service to this; legal values: '\''None'\'', '\''ClientIP'\'']' \
+            '--target-port[Name or number for the port on the container that the service should direct traffic to. Optional.]' \
+            '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
+            '--type[Type for this service: ClusterIP, NodePort, LoadBalancer, or ExternalName. Default is '\''ClusterIP'\''.]' \
+            "*: :{_describe 'expose_cmd' expose_cmds}"
+        ;;
+
+        run)
+
+          _arguments \
+            '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
+            '--attach=[If true, wait for the Pod to start running, and then attach to the Pod as if '\''kubectl attach ...'\'' were called.  Default false, unless '\''-i/--stdin'\'' is set, in which case the default is true. With '\''--restart=Never'\'' the exit code of the container process is returned.]' \
+            '--cascade[If true, cascade the deletion of the resources managed by this resource (e.g. Pods created by a ReplicationController).  Default true.]' \
+            '--command[If true and extra arguments are present, use them as the 'command' field in the container, rather than the 'args' field which is the default.]' \
+            '--dry-run[If true, only print the object that would be sent, without sending it.]' \
+            '--env[Environment variables to set in the container]' \
+            '--expose[If true, a public, external service is created for the container(s) which are run]' \
+            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]' \
+            '--force[Only used when grace-period=0. If true, immediately remove resources from API and bypass graceful deletion. Note that immediate deletion of some resources may result in inconsistency or data loss and requires confirmation.]' \
+            '--generator[The name of the API generator to use. There are 2 generators: '\''service/v1'\'' and '\''service/v2'\''. The only difference between them is that service port in v1 is named '\''default'\'', while it is left unnamed in v2. Default is '\''service/v2'\''.]' \
+            '--help[Get more information about a this command help]' \
+            '--grace-period[Period of time in seconds given to the resource to terminate gracefully. Ignored if negative. Set to 1 for immediate shutdown. Can only be set to 0 when --force is true (force deletion).]' \
+            '--hostport[The host port mapping for the container port. To demonstrate a single-machine container.]' \
+            '--image[The image for the container to run.]' \
+            '--image-pull-policy[The image pull policy for the container. If left empty, this value will not be specified by the client and defaulted by the server]' \
+            '(-l --labels)'{-l,--labels}'[Labels to apply to the service created by this call.]' \
+            '--leave-stdin-open[ If the pod is started in interactive mode or with stdin, leave stdin open after the first attach completes. By default, stdin will be closed after the first attach completes.]' \
+            '--limits[The resource requirement limits for this container.  For example, '\''cpu=200m,memory=512Mi'\''.  Note that server side components may assign limits depending on the server configuration, such as limit ranges.]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|wide|name|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...See custom columns \[http://kubernetes.io/docs/user-guide/kubectl-overview/#custom-columns\], golang template \[http://golang.org/pkg/text/template/#pkg-overview\] and jsonpath template \[http://kubernetes.io/docs/user-guide/jsonpath\].]' \
+            '--overrides[An inline JSON override for the generated object. If this is non-empty, it is used to override the generated object. Requires that the object supply a valid apiVersion field. ]' \
+            '--pod-running-timeout[The length of time (like 5s, 2m, or 3h, higher than zero) to wait until at least one pod is running]' \
+            '--port[The port that this container exposes.  If --expose is true, this is also the port used by the service that is created.]' \
+            '--quiet[If true, suppress prompt messages.]' \
+            '--record[Record current kubectl command in the resource annotation. If set to false, do not record the command. If set to true, record the command. If not set, default to updating the existing annotation value only if one already exists.]' \
+            '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
+            '(-r --replicas)'{-r,--replicas}'[Number of replicas to create for this container. Default is 1.]' \
+            '--requests[The resource requirement requests for this container.  For example, '\''cpu=100m,memory=256Mi'\''.  Note that server side components may assign requests depending on the server configuration, such as limit ranges.]' \
+            '--restart[The restart policy for this Pod.  Legal values \[Always, OnFailure, Never\].  If set to '\''Always'\'' a deployment is created, if set to '\''OnFailure'\'' a job is created, if set to '\''Never'\'', a regular pod is created. For the latter two --replicas must be 1.  Default '\''Always'\'', for CronJobs '\''Never'\''.]' \
+            '--rm[If true, delete resources created in this command for attached containers.]' \
+            '--save-config[If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.]' \
+            '--schedule[A schedule in the Cron format the job should be run with.]' \
+            '--service-generator[The name of the generator to use for creating a service.  Only used if --expose is true]' \
+            '--service-overrides[An inline JSON override for the generated service object. If this is non-empty, it is used to override the generated object. Requires that the object supply a valid apiVersion field.  Only used if --expose is true.]' \
+            '--serviceaccount[Service account to set in the pod spec]' \
+            '(-i --stdin)'{-i,--stdin}'[Keep stdin open on the container(s) in the pod, even if nothing is attached.]' \
+            '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
+            '--timeout[The length of time to wait before giving up on a delete, zero means determine a timeout from the size of the object]' \
+            '(-t --tty)'{-t,--tty}'[Allocated a TTY for each container in the pod.]' \
+            '--wait[If true, wait for resources to be gone before returning. This waits for finalizers.]'
+        ;;
+
+        set)
+
+          local -a set_cmds
+          set_cmds=(
+          'env:Update environment variables on a pod template'
+          'image:Update image of a pod template'
+          'resources:Update resource requests/limits on objects with pod templates'
+          'selector:Set the selector on a resource'
+          'serviceaccount:Update ServiceAccount of a resource'
+          'subject:Update User, Group or ServiceAccount in a RoleBinding/ClusterRoleBinding'
+          )
+
+          _arguments \
+            "*:: :{_describe 'set_cmd' set_cmds}"
+        ;;
+
+        explain)
+          _arguments \
+          "*:: :{_describe 'explain_cmd' _kube_api_resources}"
+        ;;
+
+        get)
+          _arguments \
+            '--all-namespaces[If present, list the requested object(s) across all namespaces. Namespace in current context is ignored even if specified with --namespace.]' \
+            '--allow-missing-template-key[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
+            '--chunk-size[Return large lists in chunks rather than all at once. Pass 0 to disable. This flag is beta and may change in the future.]' \
+            '--export[If true, use '\''export'\'' for the resources.  Exported resources are stripped of cluster-specific information.]' \
+            '--field-selector[Selector (field query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. --field-selector key1=value1,key2=value2). The server only supports a limited number of field queries per type.]' \
+            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]' \
+            '--ignore-not-found[If the requested object does not exist the command will return exit code 0.]' \
+            '--include-uninitialized[If true, the kubectl command applies to uninitialized objects. If explicitly set to false, this flag overrides other flags that make the kubectl commands apply to uninitialized objects, e.g., \"--all\". Objects with empty metadata.initializers are regarded as initialized.]' \
+            '(-L --label-columns)'{-L,--label-columns}'[Accepts a comma separated list of labels that are going to be presented as columns. Names are case-sensitive. You can also use multiple flag options like -L label1 -L label2...]' \
+            '--no-headers[When using the default or custom-column output format, don'\''t print headers (default print headers).]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|wide|name|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...See custom columns \[http://kubernetes.io/docs/user-guide/kubectl-overview/#custom-columns\], golang template \[http://golang.org/pkg/text/template/#pkg-overview\] and jsonpath template \[http://kubernetes.io/docs/user-guide/jsonpath\].]' \
+            '--raw[Raw URI to request from the server.  Uses the transport specified by the kubeconfig file.]' \
+            '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
+            '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
+            '--server-print[If true, have the server return the appropriate table output. Supports extension APIs and CRDs.]' \
+            '--show-kind[If present, list the resource type for the requested object(s).]' \
+            '--show-labels[When printing, show all labels as the last column (default hide labels column)]' \
+            '--sort-by[If non-empty, sort list types using this field specification.  The field specification is expressed as a JSONPath expression \(e.g. '\''\{.metadata.name\}'\''\). The field in the API resource specified by this JSONPath expression must be an integer or a string.]' \
+            '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
+            '--use-openapi-print-columns[If true, use x-kubernetes-print-column metadata (if present) from the OpenAPI schema for displaying a resource.]' \
+            '(-w --watch)'{-w,--watch}'[After listing/getting the requested object, watch for changes. Uninitialized objects are excluded if no object name is provided.]' \
+            '--watch-only[Watch for changes to the requested object(s), without listing/getting first.]' \
+            "*:: :{_describe 'get_resources' _kube_api_resources}"
+        ;;
+
+        edit)
+          _arguments \
+            '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
+            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]' \
+            '--include-uninitialized[If true, the kubectl command applies to uninitialized objects. If explicitly set to false, this flag overrides other flags that make the kubectl commands apply to uninitialized objects, e.g., "--all". Objects with empty metadata.initializers are regarded as initialized.]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|wide|name|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...See custom columns \[http://kubernetes.io/docs/user-guide/kubectl-overview/#custom-columns\], golang template \[http://golang.org/pkg/text/template/#pkg-overview\] and jsonpath template \[http://kubernetes.io/docs/user-guide/jsonpath\].]' \
+            '--output-patch[Output the patch if the resource is edited.]' \
+            '--record[Record current kubectl command in the resource annotation. If set to false, do not record the command. If set to true, record the command. If not set, default to updating the existing annotation value only if one already exists.]' \
+            '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
+            '--save-config[If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.]' \
+            '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
+            '--validate[If true, use a schema to validate the input before sending it]' \
+            '--windows-line-endings[Defaults to the line ending native to your platform.]' \
+            "*:: :{_describe 'edit_resources' _kube_api_resources}"
+        ;;
+
+        delete)
+          _arguments \
+            '--all[Delete all resources, including uninitialized ones, in the namespace of the specified resource types.]' \
+            '--cascade[If true, cascade the deletion of the resources managed by this resource (e.g. Pods created by a ReplicationController).  Default true.]' \
+            '--field-selector[Selector (field query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. --field-selector key1=value1,key2=value2). The server only supports a limited number of field queries per type.]' \
+            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]' \
+            '--force[Only used when grace-period=0. If true, immediately remove resources from API and bypass graceful deletion. Note that immediate deletion of some resources may result in inconsistency or data loss and requires confirmation.]' \
+            '--grace-period[Period of time in seconds given to the resource to terminate gracefully. Ignored if negative. Set to 1 for immediate shutdown. Can only be set to 0 when --force is true (force deletion).]' \
+            '--ignore-not-found[Treat \"resource not found\" as a successful delete. Defaults to \"true\" when --all is specified.]' \
+            '--include-uninitialized[If true, the kubectl command applies to uninitialized objects. If explicitly set to false, this flag overrides other flags that make the kubectl commands apply to uninitialized objects, e.g., "--all". Objects with empty metadata.initializers are regarded as initialized.]' \
+            '--now[If true, resources are signaled for immediate shutdown (same as --grace-period=1).]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|wide|name|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...See custom columns \[http://kubernetes.io/docs/user-guide/kubectl-overview/#custom-columns\], golang template \[http://golang.org/pkg/text/template/#pkg-overview\] and jsonpath template \[http://kubernetes.io/docs/user-guide/jsonpath\].]' \
+            '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
+            '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
+            '--timeout[The length of time to wait before giving up on a delete, zero means determine a timeout from the size of the object]' \
+            '--wait[If true, wait for resources to be gone before returning. This waits for finalizers.]' \
+            "1: :{_describe 'delete_resources' _kube_api_resources}"
+        ;;
+
+        rollout)
+
+          local -a rollout_cmds
+          rollout_cmds=(
+          'history:View rollout history'
+          'pause:Mark the provided resource as paused'
+          'resume:Resume a paused resource'
+          'status:Show the status of the rollout'
+          'undo:Undo a previous rollout'
+          )
+
+          _arguments \
+            "*:: :{_describe 'rollout_cmd' rollout_cmds}"
+        ;;
+
+        scale)
+          _arguments \
+            '--all[Select all resources in the namespace of the specified resource types]' \
+            '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
+            '--current-replicas[Precondition for current size. Requires that the current size of the resource match this value in order to scale.]' \
+            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|wide|name|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...See custom columns \[http://kubernetes.io/docs/user-guide/kubectl-overview/#custom-columns\], golang template \[http://golang.org/pkg/text/template/#pkg-overview\] and jsonpath template \[http://kubernetes.io/docs/user-guide/jsonpath\].]' \
+            '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
+            '--replicas[The new desired number of replicas. Required.]' \
+            '--resource-version[Requires that the current resource version match this value in order to scale.]' \
+            '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
+            '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
+            '--timeout[The length of time to wait before giving up on a scale operation, zero means don'\''t wait. Any other values should contain a corresponding time unit (e.g. 1s, 2m, 3h).]' \
+        ;;
+
+        autoscale)
+          _arguments \
+            '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
+            '--cpu-percent[The target average CPU utilization (represented as a percent of requested CPU) over all the pods. If it'\''s not specified or negative, a default autoscaling policy will be used.]' \
+            '--dry-run[If true, only print the object that would be sent, without sending it.]' \
+            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]' \
+            '--generator[The name of the API generator to use. Currently there is only 1 generator.]' \
+            '--max[The upper limit for the number of pods that can be set by the autoscaler. Required.]' \
+            '--min[The lower limit for the number of pods that can be set by the autoscaler. If it'\''s not specified or negative, the server will apply a default value.]' \
+            '--name[The name for the newly created object. If not specified, the name of the input resource will be used.]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]' \
+            '--record[Record current kubectl command in the resource annotation. If set to false, do not record the command. If set to true, record the command. If not set, default to updating the existing annotation value only if one already exists.]' \
+            '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
+            '--save-config[If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.]' \
+            '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
+        ;;
+
+        certificate)
+
+          local -a certificate_cmds
+          certificate_cmds=(
+          'approve:Approve a certificate signing request'
+          'deny:Deny a certificate signing request'
+          )
+
+          _arguments \
+            "*:: :{_describe 'certificate_cmd' certificate_cmds}"
+        ;;
+
+        cluster-info)
+
+          local -a clusterinfo_cmds
+          clusterinfo_cmds=(
+          'dump:Dump lots of relevant info for debugging and diagnosis'
+          )
+
+          _arguments \
+            "*:: :{_describe 'clusterinfo_cmd' clusterinfo_cmds}"
+        ;;
+
+        top)
+
+          local -a top_cmds
+          top_cmds=(
+          'node:Display Resource (CPU/Memory/Storage) usage of nodes'
+          'pod:Display Resource (CPU/Memory/Storage) usage of pods'
+          )
+
+          _arguments \
+            "*:: :{_describe 'top_cmd' top_cmds}"
+        ;;
+
+        cordon)
+          _arguments \
+            "*:: :{_describe 'cordon_cmd' _kube_get_nodes}"
+        ;;
+
+        uncordon)
+          _arguments \
+            '--dry-run[If true, only print the object that would be sent, without sending it.]' \
+            '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
+            "*:: :{_describe 'uncordon_node' _kube_get_nodes}"
+        ;;
+
+        drain)
+          _arguments \
+            '--delete-local-data[Continue even if there are pods using emptyDir (local data that will be deleted when the node is drained).]' \
+            '--dry-run[If true, only print the object that would be sent, without sending it.]' \
+            '--force[Continue even if there are pods not managed by a ReplicationController, ReplicaSet, Job, DaemonSet or StatefulSet.]' \
+            '--grace-period[Period of time in seconds given to each pod to terminate gracefully. If negative, the default value specified in the pod will be used.]' \
+            '--ignore-daemonsets[Ignore DaemonSet-managed pods.]' \
+            '--pod-selector[Label selector to filter pods on the node]' \
+            '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
+            '--timeout[The length of time to wait before giving up, zero means infinite]' \
+            "*:: :{_describe 'drain_cmd' _kube_get_nodes}"
+        ;;
+
+        taint)
+          _arguments \
+            '--all[Select all nodes in the cluster]' \
+            '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]' \
+            '--overwrite[If true, allow taints to be overwritten, otherwise reject taint updates that overwrite existing taints.]' \
+            '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
+            '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
+            '--validate[If true, use a schema to validate the input before sending it]' \
+            "*:: :{_describe 'drain_node' _kube_get_nodes}"
+        ;;
+
+        describe)
+          _arguments \
+            '--all-namespaces[If present, list the requested object(s) across all namespaces. Namespace in current context is ignored even if specified with --namespace.]' \
+            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to describe the resource]' \
+            '--include-uninitialized[If true, the kubectl command applies to uninitialized objects. If explicitly set to false, this flag overrides other flags that make the kubectl commands apply to uninitialized objects, e.g., "--all". Objects with empty metadata.initializers are regarded as initialized.]' \
+            '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
+            '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
+            '--show-events[If true, display events related to the described object.]' \
+            "1: :{_describe 'describe_node' _kube_api_resources}"
+        ;;
+
+        logs)
+          _arguments \
+            '--all-containers[Get all containers'\''s logs in the pod(s).]' \
+            '(-c --container)'{-c,--container}'[Print the logs of this container]' \
+            '(-f --follow)'{-f,--follow}'[Specify if the logs should be streamed.]' \
+            '--limit-bytes[Maximum bytes of logs to return. Defaults to no limit.]' \
+            '--pod-running-timeout[The length of time (like 5s, 2m, or 3h, higher than zero) to wait until at least one pod is running]' \
+            '(-p --previous)'{-p,--previous}'[ If true, print the logs for the previous instance of the container in a pod if it exists.]' \
+            '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
+            '--since[Only return logs newer than a relative duration like 5s, 2m, or 3h. Defaults to all logs. Only one of since-time / since may be used.]' \
+            '--since-time[Only return logs after a specific date (RFC3339). Defaults to all logs. Only one of since-time / since may be used.]' \
+            '--tail[Lines of recent log file to display. Defaults to -1 with no selector, showing all log lines otherwise 10, if a selector is provided.]' \
+            '--timestamps[Include timestamps on each line in the log output]' \
+            "1: :{_describe 'logs_pod' _kube_get_pods}"
+        ;;
+
+        attach)
+          _arguments \
+            '(-c --container)'{-c,--container}'[Container name. If omitted, the first container in the pod will be chosen]' \
+            '--pod-running-timeout[The length of time (like 5s, 2m, or 3h, higher than zero) to wait until at least one pod is running]' \
+            '(-i --stdin)'{-i,--stdin}'[Pass stdin to the container]' \
+            '(-t --tty)'{-t,--tty}'[Stdin is a TTY]' \
+            "*:: :{_describe 'attach_pod' _kube_get_pods}"
+        ;;
+
+        exec)
+          _arguments \
+            '(-c --container)'{-c,--container}'[Container name. If omitted, the first container in the pod will be chosen]' \
+            '(-p --pod)'{-p,--pod}'[Pod name]' \
+            '(-i --stdin)'{-i,--stdin}'[Pass stdin to the container]' \
+            '(-t --tty)'{-t,--tty}'[Stdin is a TTY]' \
+            "*:: :{_describe 'exec_pod' _kube_get_pods}"
+        ;;
+
+        port-forward)
+          _arguments \
+            '--pod-running-timeout:[The length of time (like 5s, 2m, or 3h, higher than zero) to wait until at least one pod is running]' \
+        ;;
+
+        proxy)
+          _arguments \
+            '--accept-hosts[Regular expression for hosts that the proxy should accept.]' \
+            '--accept-paths[Regular expression for paths that the proxy should accept.]' \
+            '--address[The IP address on which to serve on.]' \
+            '--api-prefix[Prefix to serve the proxied API under.]' \
+            '--disable-filter[If true, disable request filtering in the proxy. This is dangerous, and can leave you vulnerable to XSRF attacks, when used with an accessible port.]' \
+            '(-p --port)'{-p,--port}'[The port on which to run the proxy. Set to 0 to pick a random port.]'
+            '--reject-methods[Regular expression for HTTP methods that the proxy should reject (example --reject-methods='\''POST,PUT,PATCH'\'').]'
+            '--reject-paths[Regular expression for paths that the proxy should reject. Paths specified here will be rejected even accepted by --accept-paths.]' \
+            '(-u --unix-socket)'{-u,--unix-socket}'[Unix socket on which to run the proxy.]' \
+            '(-w --www)'{-w,--www}'[Also serve static files from the given directory under the specified prefix.]' \
+            '(-P --www-prefix)'{-P,--www-prefix}'[Prefix to serve static files under, if static file directory is specified.]'
+        ;;
+        cp)
+          _arguments \
+            '(-c --container)'{-c,--container}'[Container name. If omitted, the first container in the pod will be chosen]'
+        ;;
+
+        auth)
+          local -a auth_cmds
+          auth_cmds=(
+          'can-i:Check whether an action is allowed'
+          'reconcile:Reconciles rules for RBAC Role, RoleBinding, ClusterRole, and ClusterRole binding objects'
+          )
+
+          _arguments \
+            "*:: :{_describe 'auth_cmd' auth_cmds}"
         ;;
       esac
     ;;
