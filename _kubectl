@@ -550,6 +550,144 @@ _kubectl(){
             '--type[The type of patch being provided; one of \[json merge strategic\]]' \
             "*: :{_describe 'patch_nodes' _kube_api_resources}"
         ;;
+        replace)
+          _arguments \
+            '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
+            '--cascade[If true, cascade the deletion of the resources managed by this resource (e.g. Pods created by a ReplicationController).  Default true.]' \
+            '(-f --filename)'{-f,--filename}'[to use to replace the resource.]' \
+            '--force[If true, immediately remove resources from API and bypass graceful deletion. Note that immediate deletion of some resources may result in inconsistency or data loss and requires confirmation.]' \
+            '--grace-period[Period of time in seconds given to the resource to terminate gracefully. Ignored if negative. Set to 1 for immediate shutdown. Can only be set to 0 when --force is true (force deletion).]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]' \
+            '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
+            '--save-config[If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.]' \
+            '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
+            '--timeout[The length of time to wait before giving up on a delete, zero means determine a timeout from the size of the object]' \
+            '--validate[If true, use a schema to validate the input before sending it]' \
+            '--wait[If true, wait for resources to be gone before returning. This waits for finalizers.]'
+        ;;
+        wait)
+          _arguments \
+            '--all-namespaces[If present, list the requested object(s) across all namespaces. Namespace in current context is ignored even if specified with --namespace.]' \
+            '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
+            '(-f --filename)'{-f,--filename}'[to use to replace the resource.]' \
+            '--for[The condition to wait on: \[delete\|condition=condition-name\].]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]' \
+            '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
+            '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
+            '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
+            '--timeout[The length of time to wait before giving up on a delete, zero means determine a timeout from the size of the object]'
+        ;;
+        convert)
+          _arguments \
+           '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
+           '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to need to get converted.]' \
+           '--local[If true, convert will NOT try to contact api-server but run locally.]' \
+           '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]' \
+           '--output-version[Output the formatted object with the given group version (for ex:'\''extensions/v1beta1'\'').)]' \
+           '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
+           '--template[Template string or path to template file to use when -o=go-template,-o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
+           '--validate[If true, use a schema to validate the input before sending it]'
+        ;;
+        label)
+          _arguments \
+            '--all[Select all resources, including uninitialized ones, in the namespace of the specified resource types]' \
+            '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
+            '--dry-run[If true, only print the object that would be sent, without sending it.]' \
+            '--field-selector[Selector (field query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
+            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files identifying the resource to update the labels]' \
+            '--include-uninitialized[If true, the kubectl command applies to uninitialized objects. If explicitly set to false, this flag overrides other flags that make the kubectl commands apply to uninitialized objects, e.g., \"\-\-all\". Objects with empty metadata.initializers are regarded as initialized.]' \
+            '--list[If true, display the labels for a given resource.]' \
+            '--local[If true, label will NOT contact api-server but run locally.]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]' \
+            '--overwrite[If true, allow labels to be overwritten, otherwise reject label updates that overwrite existing labels.]' \
+            '--record[Record current kubectl command in the resource annotation. If set to false, do not record the command. If set to true, record the command. If not set, default to updating the existing annotation value only if one already exists.]' \
+            '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
+            '--resource-version[If non-empty, the labels update will only succeed if this is the current resource-version for the object. Only valid when specifying a single resource.]' \
+            '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
+            '--template[Template string or path to template file to use when -o=go-template,-o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]'
+        ;;
+        annotate)
+          _arguments \
+            '--all[Select all resources, including uninitialized ones, in the namespace of the specified resource types]' \
+            '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
+            '--dry-run[If true, only print the object that would be sent, without sending it.]' \
+            '--field-selector[Selector (field query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
+            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files identifying the resource to update the labels]' \
+            '--include-uninitialized[If true, the kubectl command applies to uninitialized objects. If explicitly set to false, this flag overrides other flags that make the kubectl commands apply to uninitialized objects, e.g., \"\-\-all\". Objects with empty metadata.initializers are regarded as initialized.]' \
+            '--list[If true, display the labels for a given resource.]' \
+            '--local[If true, label will NOT contact api-server but run locally.]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]' \
+            '--overwrite[If true, allow labels to be overwritten, otherwise reject label updates that overwrite existing labels.]' \
+            '--record[Record current kubectl command in the resource annotation. If set to false, do not record the command. If set to true, record the command. If not set, default to updating the existing annotation value only if one already exists.]' \
+            '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
+            '--resource-version[If non-empty, the labels update will only succeed if this is the current resource-version for the object. Only valid when specifying a single resource.]' \
+            '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
+            '--template[Template string or path to template file to use when -o=go-template,-o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]'
+       ;;
+       completion)
+         local -a completion_cmds
+         completion_cmds=(
+         'zsh'
+         'bash'
+         )
+
+         _arguments \
+           "*: :{_describe 'completion_cmd' completion_cmds}"
+       ;;
+       alpha)
+         local -a alpha_cmds
+         alpha_cmds=(
+         'diff'
+         )
+
+         _arguments \
+           "*: :{_describe 'alpha_cmd' alpha_cmds}"
+       ;;
+       api-resources)
+         _arguments \
+           '--api-group[Limit to resources in the specified API group.]' \
+           '--cached[Use the cached list of resources if available.]' \
+           '--namespaced[If false, non-namespaced resources will be returned, otherwise returning namespaced resources by default]' \
+           '--no-headers[When using the default or custom-column output format, don'\''t print headers(default print headers).]' \
+           '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]' \
+           '--verbs[Limit to resources that support the specified verbs.]'
+       ;;
+       config)
+          local -a config_cmds
+          config_cmds=(
+          'current-context:Displays the current-context'
+          'delete-cluster:Delete the specified cluster from the kubeconfig'
+          'delete-context:Delete the specified context from the kubeconfig'
+          'get-clusters:Display clusters defined in the kubeconfig'
+          'get-contexts:Describe one or many contexts'
+          'rename-context:Renames a context from the kubeconfig file.'
+          'set:Sets an individual value in a kubeconfig file'
+          'set-cluster:Sets a cluster entry in kubeconfig'
+          'set-context:Sets a context entry in kubeconfig'
+          'set-credentials:Sets a user entry in kubeconfig'
+          'unset:Unsets an individual value in a kubeconfig file'
+          'use-context:Sets the current-context in a kubeconfig file'
+          'view:Display merged kubeconfig settings or a specified kubeconfig file'
+          )
+
+          _arguments \
+            "*: :{_describe 'config_cmd' config_cmds}"
+       ;;
+       plugin)
+         local -a plugin_cmds
+         plugin_cmds=(
+         'list'
+         )
+
+         _arguments \
+           "*: :{_describe 'plugin_cmd' plugin_cmds}"
+       ;;
+       version)
+         _arguments \
+           '--client[Client version only (no server required).]' \
+           '(-o --output)'{-o,--output}'[One of '\''yaml'\'' or '\''json'\'']' \
+           '--short[Print just the version number.]'
+       ;;
       esac
     ;;
   esac
