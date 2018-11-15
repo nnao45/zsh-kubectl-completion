@@ -571,7 +571,7 @@ _kubectl(){
             '--since-time[Only return logs after a specific date (RFC3339). Defaults to all logs. Only one of since-time / since may be used.]' \
             '--tail[Lines of recent log file to display. Defaults to -1 with no selector, showing all log lines otherwise 10, if a selector is provided.]' \
             '--timestamps[Include timestamps on each line in the log output]' \
-            "1: :{_describe 'logs_pod' _kube_get_pods}"
+            "1: :{_alternative ':log_pods:__kube_get_pods' }"
         ;;
 
         attach)
@@ -581,7 +581,7 @@ _kubectl(){
             '--pod-running-timeout[The length of time (like 5s, 2m, or 3h, higher than zero) to wait until at least one pod is running]' \
             '(-i --stdin)'{-i,--stdin}'[Pass stdin to the container]' \
             '(-t --tty)'{-t,--tty}'[Stdin is a TTY]' \
-            "1: :{_describe 'attach_pod' _kube_get_pods}"
+            "1: :{_alternative ':attach_pods:__kube_get_pods' }"
         ;;
 
         exec)
@@ -591,7 +591,7 @@ _kubectl(){
             '(-p --pod)'{-p,--pod}'[Pod name]' \
             '(-i --stdin)'{-i,--stdin}'[Pass stdin to the container]' \
             '(-t --tty)'{-t,--tty}'[Stdin is a TTY]' \
-            "1: :{_describe 'exec_pod' _kube_get_pods}"
+            "1: :{_alternative ':exec_pods:__kube_get_pods' }"
         ;;
 
         port-forward)
