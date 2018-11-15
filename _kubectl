@@ -40,7 +40,6 @@ __kube_get_nodes(){
 
 __kube_get_api_resources(){
   local -a _api_result _api_status _api_list
-  _api_result=(`kubectl api-resources | tail -n +2 | tr ' ' '$'`)
   _api_list=(`kubectl api-resources | tail -n +2 | awk '{print $1}'`)
   _values 'api resources' ${_api_list[@]}
 }
