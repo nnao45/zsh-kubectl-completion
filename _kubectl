@@ -10,27 +10,37 @@ _kube_get_nodes=(`kubectl get node | tail -n +2 | awk '{print $1}'`)
 _kube_api_resources=(`kubectl api-resources | tail -n +2 | awk '{print $1}'`)
 
 __kube_get_pods(){
-  local -a _pods_result _pods _pods_description
-  _pods_result=`kubectl get pods --all-namespaces -o wide`
-  _pods=(`echo ${_pods_result} | tail -n +2 | awk '{print $2}'`)
-  compadd -a _pods
+  local -a _pods_result _pods _pods_description _pods_list
+  _pods_result=(`kubectl get pods --all-namespaces -o wide | tail -n +2 | tr ' ' '$'`)
+  _pods_list=()
+  for _r in ${_pods_result}
+  do
+    _pods_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $2}'`'[ in '`echo ${_r} | tr '$' ' ' | awk '{print $1}'`' at '`echo ${_r} | tr '$' ' ' | awk '{print $8}'`']')
+  done
+  _values 'pod' ${_pods_list[@]}
 }
+
 __kube_get_namespaces(){
-  local -a _ns
-  _ns=(`kubectl get namespace | tail -n +2 | awk '{print $1}'`)
-  compadd -a _ns
+  local -a _ns_result _ns_status _ns_list
+  _ns_result=(`kubectl get namespace | tail -n +2 | tr ' ' '$'`)
+  _ns_list=()
+  for _r in ${_ns_result}
+  do
+    _ns_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'['`echo ${_r} | tr '$' ' ' | awk '{print $2}'`']')
+  done
+  _values 'namespace' ${_ns_list[@]}
 }
 
 __create_cmd(){
-  local -a create_cmds
-  create_cmds=(
+  local -a _create_cmds
+  _create_cmds=(
   'clusterrole[Create a ClusterRole.]'
   'clusterrolebinding[Create a ClusterRoleBinding for a particular ClusterRole]'
   'configmap[Create a configmap from a local file, directory or literal value]'
   'deployment[Create a deployment with the specified name.]'
   'job[Create a job with the specified name.]'
   'help[Get more information about a this command help]'
-  'namespace[Create a namespace with the specified name.]:namespaecs:__kube_get_namespaces'
+  'namespace[Create a namespace with the specified name.]'
   'poddisruptionbudget[Create a pod disruption budget with the specified name.]'
   'priorityclass[Create a priorityclass with the specified name.]'
   'quota[Create a quota with the specified name.]'
@@ -40,14 +50,141 @@ __create_cmd(){
   'service[Create a service using specified subcommand.]'
   'serviceaccount[Create a service account with the specified name.]'
   ) 
-  _values 'create_cmd' $create_cmds[@]
+  _values 'create command' $_create_cmds[@]
+}
+
+__expose_cmd(){
+  local -a _expose_cmds
+  _expose_cmds=(
+  'pod:expose pod:__kube_get_pods'
+  'service'
+  'replicationcontroller'
+  'deployment'
+  'replicaset'
+  )
+  _values 'expose command' $_expose_cmds[@]
+}
+
+__set_cmd(){
+  local -a _set_cmds
+  _set_cmds=(
+  'env[Update environment variables on a pod template]'
+  'image[Update image of a pod template]'
+  'resources[Update resource requests/limits on objects with pod templates]'
+  'selector[Set the selector on a resource]'
+  'serviceaccount[Update ServiceAccount of a resource]'
+  'subject[Update User, Group or ServiceAccount in a RoleBinding/ClusterRoleBinding]'
+  )
+  _values 'set command' $_set_cmds[@]
+}
+
+__rollout_cmd(){
+  local -a _rollout_cmds
+  _rollout_cmds=(
+  'history[View rollout history]'
+  'pause[Mark the provided resource as paused]'
+  'resume[Resume a paused resource]'
+  'status[Show the status of the rollout]'
+  'undo[Undo a previous rollout]'
+  )
+  _values 'rollout command' $_rollout_cmds[@]
+}
+
+__certificate_cmd(){
+  local -a _certificate_cmds
+  _certificate_cmds=(
+  'approve[Approve a certificate signing request]'
+  'deny[Deny a certificate signing request]'
+  )
+  _values 'certificate command' $_certificate_cmds[@]
+}
+
+__clusterinfo_cmd(){
+  local -a _clusterinfo_cmds
+  _clusterinfo_cmds=(
+  'dump[Dump lots of relevant info for debugging and diagnosis]'
+  )
+  _values 'clusterinfo command' $_clusterinfo_cmds[@]
+}
+
+__top_cmd(){
+  local -a _top_cmds
+  _top_cmds=(
+  'node[Display Resource (CPU/Memory/Storage) usage of nodes]'
+  'pod[Display Resource (CPU/Memory/Storage) usage of pods]'
+  )
+  _values 'top command' $_top_cmds[@]
+}
+
+__auth_cmd(){
+  local -a _auth_cmds
+  _auth_cmds=(
+  'can-i[Check whether an action is allowed]'
+  'reconcile[Reconciles rules for RBAC Role, RoleBinding, ClusterRole, and ClusterRole binding objects]'
+  )
+  _values 'auth command' $_auth_cmds[@]
+}
+
+__apply_cmd(){
+  local -a _apply_cmds
+  _apply_cmds=(
+  'edit-last-applied[Edit latest last-applied-configuration annotations of a resource/object]'
+  'set-last-applied[Set the last-applied-configuration annotation on a live object to match the contents of a file.]'
+  'view-last-applied[View latest last-applied-configuration annotations of a resource/object]'
+  )
+  _values 'apply command' $_apply_cmds[@]
+}
+
+__completion_cmd(){
+  local -a _completion_cmds
+  _completion_cmds=(
+  'zsh[Shell designed for interactive use, although it is also a powerful scripting language.]'
+  'bash[Unix shell and command language written by Brian Fox for the GNU Project as a free software replacement for the Bourne shell.]'
+  )
+  _values 'completion command' $_completion_cmds[@]
+}
+
+__alpha_cmd(){
+  local -a _alpha_cmds
+  _alpha_cmds=(
+  'diff[Diff different versions of configurations]'
+  )
+  _values 'alpha command' $_alpha_cmds[@]
+}
+
+__config_cmd(){
+  local -a _config_cmds
+  _config_cmds=(
+  'current-context[Displays the current-context]'
+  'delete-cluster[Delete the specified cluster from the kubeconfig]'
+  'delete-context[Delete the specified context from the kubeconfig]'
+  'get-clusters[Display clusters defined in the kubeconfig]'
+  'get-contexts[Describe one or many contexts]'
+  'rename-context[Renames a context from the kubeconfig file.]'
+  'set[Sets an individual value in a kubeconfig file]'
+  'set-cluster[Sets a cluster entry in kubeconfig]'
+  'set-context[Sets a context entry in kubeconfig]'
+  'set-credentials[Sets a user entry in kubeconfig]'
+  'unset[Unsets an individual value in a kubeconfig file]'
+  'use-context[Sets the current-context in a kubeconfig file]'
+  'view[Display merged kubeconfig settings or a specified kubeconfig file]'
+  )
+  _values 'config command' $_config_cmds[@]
+}
+
+__plugin_cmd(){
+  local -a _plugin_cmds
+  _plugin_cmds=(
+  'list[list all visible plugin executables on a user'\''s PATH]'
+  )
+  _values 'plugin command' $_plugin_cmds[@]
 }
 
 _kubectl(){
   typeset -A opt_args
 
-  local -a cmds
-  cmds=(
+  local -a _basic_cmds
+  _basic_cmds=(
   'create:Create a resource from a file or from stdin.'
   'expose:Take a replication controller, service, deployment or pod and expose it as a new'
   'run:Run a particular image on the cluster'
@@ -111,7 +248,7 @@ _kubectl(){
   '--log-flush-frequency[Maximum number of seconds between log flushes]' 
   '--logtostderr=true[log to standard error instead of files]' 
   '--match-server-version[Require server version to match client version]' 
-  '--namespace[If present, the namespace scope for this CLI request]:namespaecs:__kube_get_namespaces' 
+  '--namespace[If present, the namespace scope for this CLI request]:namespaces:__kube_get_namespaces' 
   '--password[Password for basic authentication to the API server]' 
   '--request-timeout[The length of time to wait before giving up on a single server request. Non-zero values should contain a corresponding time unit (e.g. 1s, 2m, 3h). A value of zero means don'\''t timeout requests.]' 
   '--server[The address and port of the Kubernetes API server]' 
@@ -125,14 +262,13 @@ _kubectl(){
 
   _arguments  \
     ${_global_flags[@]} \
-    "1: :{_describe 'cmd' cmds}" \
+    "1: :{_describe 'basic command' _basic_cmds}" \
     '*:: :->args'
 
   case $state in
     args)
       case $words[1] in
         create)
-
           _arguments \
             ${_global_flags[@]} \
             '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
@@ -153,16 +289,6 @@ _kubectl(){
         ;;
 
         expose)
-
-          local -a expose_cmds
-          expose_cmds=(
-          'pod'
-          'service'
-          'replicationcontroller'
-          'deployment'
-          'replicaset'
-          )
-
           _arguments \
             ${_global_flags[@]} \
             '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
@@ -188,11 +314,10 @@ _kubectl(){
             '--target-port[Name or number for the port on the container that the service should direct traffic to. Optional.]' \
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
             '--type[Type for this service: ClusterIP, NodePort, LoadBalancer, or ExternalName. Default is '\''ClusterIP'\''.]' \
-            "1: :{_describe 'expose_cmd' expose_cmds}"
+            "1: :{_alternative ':expose_cmd:__expose_cmd' }"
         ;;
 
         run)
-
           _arguments \
             ${_global_flags[@]} \
             '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
@@ -237,26 +362,15 @@ _kubectl(){
         ;;
 
         set)
-
-          local -a set_cmds
-          set_cmds=(
-          'env:Update environment variables on a pod template'
-          'image:Update image of a pod template'
-          'resources:Update resource requests/limits on objects with pod templates'
-          'selector:Set the selector on a resource'
-          'serviceaccount:Update ServiceAccount of a resource'
-          'subject:Update User, Group or ServiceAccount in a RoleBinding/ClusterRoleBinding'
-          )
-
           _arguments \
             ${_global_flags[@]} \
-            "*: :{_describe 'set_cmd' set_cmds}"
+            "1: :{_alternative ':set_cmd:__set_cmd' }"
         ;;
 
         explain)
           _arguments \
             ${_global_flags[@]} \
-            "*: :{_describe 'explain_cmd' _kube_api_resources}"
+            "*: :{_describe 'explain command' _kube_api_resources}"
         ;;
 
         get)
@@ -284,7 +398,7 @@ _kubectl(){
             '--use-openapi-print-columns[If true, use x-kubernetes-print-column metadata (if present) from the OpenAPI schema for displaying a resource.]' \
             '(-w --watch)'{-w,--watch}'[After listing/getting the requested object, watch for changes. Uninitialized objects are excluded if no object name is provided.]' \
             '--watch-only[Watch for changes to the requested object(s), without listing/getting first.]' \
-            "1: :{_describe 'get_resources' _kube_api_resources}"
+            "1: :{_describe 'get resources' _kube_api_resources}"
         ;;
 
         edit)
@@ -301,7 +415,7 @@ _kubectl(){
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
             '--validate[If true, use a schema to validate the input before sending it]' \
             '--windows-line-endings[Defaults to the line ending native to your platform.]' \
-            "1: :{_describe 'edit_resources' _kube_api_resources}"
+            "1: :{_describe 'edit resources' _kube_api_resources}"
         ;;
 
         delete)
@@ -321,23 +435,13 @@ _kubectl(){
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--timeout[The length of time to wait before giving up on a delete, zero means determine a timeout from the size of the object]' \
             '--wait[If true, wait for resources to be gone before returning. This waits for finalizers.]' \
-            "1: :{_describe 'delete_resources' _kube_api_resources}"
+            "1: :{_describe 'delete resources' _kube_api_resources}"
         ;;
 
         rollout)
-
-          local -a rollout_cmds
-          rollout_cmds=(
-          'history:View rollout history'
-          'pause:Mark the provided resource as paused'
-          'resume:Resume a paused resource'
-          'status:Show the status of the rollout'
-          'undo:Undo a previous rollout'
-          )
-
           _arguments \
             ${_global_flags[@]} \
-            "*: :{_describe 'rollout_cmd' rollout_cmds}"
+            "1: :{_alternative ':rollout_cmd:__rollout_cmd' }"
         ;;
 
         scale)
@@ -375,47 +479,27 @@ _kubectl(){
         ;;
 
         certificate)
-
-          local -a certificate_cmds
-          certificate_cmds=(
-          'approve:Approve a certificate signing request'
-          'deny:Deny a certificate signing request'
-          )
-
           _arguments \
             ${_global_flags[@]} \
-            "1: :{_describe 'certificate_cmd' certificate_cmds}"
+            "1: :{_alternative ':certificate_cmd:__certificate_cmd' }"
         ;;
 
         cluster-info)
-
-          local -a clusterinfo_cmds
-          clusterinfo_cmds=(
-          'dump:Dump lots of relevant info for debugging and diagnosis'
-          )
-
           _arguments \
             ${_global_flags[@]} \
-            "1: :{_describe 'clusterinfo_cmd' clusterinfo_cmds}"
+            "1: :{_alternative ':clusterinfo_cmd:__clusterinfo_cmd' }"
         ;;
 
         top)
-
-          local -a top_cmds
-          top_cmds=(
-          'node:Display Resource (CPU/Memory/Storage) usage of nodes'
-          'pod:Display Resource (CPU/Memory/Storage) usage of pods'
-          )
-
           _arguments \
             ${_global_flags[@]} \
-            "1:: :{_describe 'top_cmd' top_cmds}"
+            "1: :{_alternative ':top_cmd:__top_cmd' }"
         ;;
 
         cordon)
           _arguments \
             ${_global_flags[@]} \
-            "1: :{_describe 'cordon_cmd' _kube_get_nodes}"
+            "1: :{_describe 'cordon command' _kube_get_nodes}"
         ;;
 
         uncordon)
@@ -423,7 +507,7 @@ _kubectl(){
             ${_global_flags[@]} \
             '--dry-run[If true, only print the object that would be sent, without sending it.]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
-            "1: :{_describe 'uncordon_node' _kube_get_nodes}"
+            "1: :{_describe 'uncordon node' _kube_get_nodes}"
         ;;
 
         drain)
@@ -437,6 +521,7 @@ _kubectl(){
             '--pod-selector[Label selector to filter pods on the node]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--timeout[The length of time to wait before giving up, zero means infinite]' \
+            "1: :{_describe 'drain node' _kube_get_nodes}"
         ;;
 
         taint)
@@ -529,27 +614,12 @@ _kubectl(){
         ;;
 
         auth)
-
-          local -a auth_cmds
-          auth_cmds=(
-          'can-i:Check whether an action is allowed'
-          'reconcile:Reconciles rules for RBAC Role, RoleBinding, ClusterRole, and ClusterRole binding objects'
-          )
-
           _arguments \
             ${_global_flags[@]} \
-            "1: :{_describe 'auth_cmd' auth_cmds}"
+            "1: :{_alternative ':auth_cmd:__auth_cmd' }"
         ;;
 
         apply)
-
-          local -a apply_cmds
-          apply_cmds=(
-          'edit-last-applied:Edit latest last-applied-configuration annotations of a resource/object'
-          'set-last-applied:Set the last-applied-configuration annotation on a live object to match the contents of a file.'
-          'view-last-applied:View latest last-applied-configuration annotations of a resource/object'
-          )
-
           _arguments \
             ${_global_flags[@]} \
             '--all[Select all resources in the namespace of the specified resource types.]' \
@@ -572,7 +642,7 @@ _kubectl(){
             '--timeout[The length of time to wait before giving up on a delete, zero means determine a timeout from the size of the object]' \
             '--validate[If true, use a schema to validate the input before sending it]' \
             '--wait[If true, wait for resources to be gone before returning. This waits for finalizers.]' \
-            "1: :{_describe 'apply_cmd' apply_cmds}" \
+            "1: :{_alternative ':apply_cmd:__apply_cmd' }"
         ;;
 
         patch)
@@ -670,25 +740,14 @@ _kubectl(){
             '--template[Template string or path to template file to use when -o=go-template,-o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]'
        ;;
        completion)
-         local -a completion_cmds
-         completion_cmds=(
-         'zsh:Shell designed for interactive use, although it is also a powerful scripting language.'
-         'bash:Unix shell and command language written by Brian Fox for the GNU Project as a free software replacement for the Bourne shell.'
-         )
-
          _arguments \
            ${_global_flags[@]} \
-           "1: :{_describe 'completion_cmd' completion_cmds}"
+           "1: :{_alternative ':completion_cmd:__completion_cmd' }"
        ;;
        alpha)
-         local -a alpha_cmds
-         alpha_cmds=(
-         'diff:Diff different versions of configurations'
-         )
-
          _arguments \
            ${_global_flags[@]} \
-           "1: :{_describe 'alpha_cmd' alpha_cmds}"
+           "1: :{_alternative ':alpha_cmd:__alpha_cmd' }"
        ;;
        api-resources)
          _arguments \
@@ -700,37 +759,19 @@ _kubectl(){
            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]' \
            '--verbs[Limit to resources that support the specified verbs.]'
        ;;
+       api-versions)
+         _arguments \
+           ${_global_flags[@]}
+       ;;
        config)
-          local -a config_cmds
-          config_cmds=(
-          'current-context:Displays the current-context'
-          'delete-cluster:Delete the specified cluster from the kubeconfig'
-          'delete-context:Delete the specified context from the kubeconfig'
-          'get-clusters:Display clusters defined in the kubeconfig'
-          'get-contexts:Describe one or many contexts'
-          'rename-context:Renames a context from the kubeconfig file.'
-          'set:Sets an individual value in a kubeconfig file'
-          'set-cluster:Sets a cluster entry in kubeconfig'
-          'set-context:Sets a context entry in kubeconfig'
-          'set-credentials:Sets a user entry in kubeconfig'
-          'unset:Unsets an individual value in a kubeconfig file'
-          'use-context:Sets the current-context in a kubeconfig file'
-          'view:Display merged kubeconfig settings or a specified kubeconfig file'
-          )
-
           _arguments \
             ${_global_flags[@]} \
-            "1: :{_describe 'config_cmd' config_cmds}"
+            "1: :{_alternative ':config_cmd:__config_cmd' }"
        ;;
        plugin)
-         local -a plugin_cmds
-         plugin_cmds=(
-         'list:list all visible plugin executables on a user'\''s PATH'
-         )
-
          _arguments \
            ${_global_flags[@]} \
-           "1: :{_describe 'plugin_cmd' plugin_cmds}"
+           "1: :{_alternative ':plugin_cmd:__plugin_cmd' }"
        ;;
        version)
          _arguments \
