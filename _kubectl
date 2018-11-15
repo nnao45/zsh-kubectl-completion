@@ -5,12 +5,10 @@
 #   https://github.com/felixr/docker-zsh-completion/blob/master/_docker
 #   https://github.com/git/git/blob/master/contrib/completion/git-completion.zsh
 
-_kube_get_pods=(`kubectl get pods --all-namespaces | tail -n +2 | awk '{print $2}'`)
-_kube_get_nodes=(`kubectl get node | tail -n +2 | awk '{print $1}'`)
 _kube_api_resources=(`kubectl api-resources | tail -n +2 | awk '{print $1}'`)
 
 __kube_get_pods(){
-  local -a _pods_result _pods _pods_description _pods_list
+  local -a _pods_result _pods _pods_list
   _pods_result=(`kubectl get pods --all-namespaces -o wide | tail -n +2 | tr ' ' '$'`)
   _pods_list=()
   for _r in ${_pods_result}
@@ -29,6 +27,17 @@ __kube_get_namespaces(){
     _ns_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'['`echo ${_r} | tr '$' ' ' | awk '{print $2}'`']')
   done
   _values 'namespace' ${_ns_list[@]}
+}
+
+__kube_get_nodes(){
+  local -a _nodes_result _nodes_status _nodes_list
+  _nodes_result=(`kubectl get node | tail -n +2 | tr ' ' '$'`)
+  _nodes_list=()
+  for _r in ${_nodes_result}
+  do
+    _nodes_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'['`echo ${_r} | tr '$' ' ' | awk '{print $2}'`' as '`echo ${_r} | tr '$' ' ' | awk '{print $3}'`']')
+  done
+  _values 'node' ${_nodes_list[@]}
 }
 
 __create_cmd(){
@@ -499,7 +508,7 @@ _kubectl(){
         cordon)
           _arguments \
             ${_global_flags[@]} \
-            "1: :{_describe 'cordon command' _kube_get_nodes}"
+            "1: :{_alternative ':cordon_node:__kube_get_nodes' }"
         ;;
 
         uncordon)
@@ -507,7 +516,7 @@ _kubectl(){
             ${_global_flags[@]} \
             '--dry-run[If true, only print the object that would be sent, without sending it.]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
-            "1: :{_describe 'uncordon node' _kube_get_nodes}"
+            "1: :{_alternative ':uncordon_node:__kube_get_nodes' }"
         ;;
 
         drain)
@@ -521,7 +530,7 @@ _kubectl(){
             '--pod-selector[Label selector to filter pods on the node]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--timeout[The length of time to wait before giving up, zero means infinite]' \
-            "1: :{_describe 'drain node' _kube_get_nodes}"
+            "1: :{_alternative ':drain_node:__kube_get_nodes' }"
         ;;
 
         taint)
