@@ -38,6 +38,17 @@ __kube_get_nodes(){
   _values 'node' ${_nodes_list[@]}
 }
 
+__kube_get_service(){
+  local -a _svc_result _svc_status _svc_list
+  _svc_result=(`kubectl get service | tail -n +2 | tr ' ' '$'`)
+  _svc_list=()
+  for _r in ${_svc_result}
+  do
+    _svc_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'[type: '`echo ${_r} | tr '$' ' ' | awk '{print $2}'`' listen '`echo ${_r} | tr '$' ' ' | awk '{print $5}'`']')
+  done
+  _values 'service' ${_svc_list[@]}
+}
+
 __kube_get_api_resources(){
   local -a _api_result _api_status _api_list
   _api_list=(`kubectl api-resources | tail -n +2 | awk '{print $1}'`)
@@ -57,7 +68,6 @@ __pod_hook_namespace(){
   done
   _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}'
 }
-
 __create_cmd(){
   local -a _create_cmds
   _create_cmds=(
@@ -84,7 +94,7 @@ __expose_cmd(){
   local -a _expose_cmds
   _expose_cmds=(
   'pod:expose pod:__kube_get_pods'
-  'service'
+  'service:expose service:__kube_get_service'
   'replicationcontroller'
   'deployment'
   'replicaset'
@@ -814,3 +824,4 @@ _kubectl(){
     ;;
   esac
 }
+
