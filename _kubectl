@@ -47,7 +47,7 @@ __kube_get_api_resources(){
 __pod_hook_namespace(){
   local -a __hook_ns
   __hook_ns=`kubectl get pods --all-namespaces | grep $words[2] | awk '{print $1}'`
-  _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}'
+  _values 'namespace' '--namespace:namespace:{compadd $__hook_ns}'
 }
 __create_cmd(){
   local -a _create_cmds
