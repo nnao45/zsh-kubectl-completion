@@ -5,8 +5,6 @@
 #   https://github.com/felixr/docker-zsh-completion/blob/master/_docker
 #   https://github.com/git/git/blob/master/contrib/completion/git-completion.zsh
 
-_kube_api_resources=(`kubectl api-resources | tail -n +2 | awk '{print $1}'`)
-
 __kube_get_pods(){
   local -a _pods_result _pods _pods_list
   _pods_result=(`kubectl get pods --all-namespaces -o wide | tail -n +2 | tr ' ' '$'`)
@@ -38,6 +36,13 @@ __kube_get_nodes(){
     _nodes_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'['`echo ${_r} | tr '$' ' ' | awk '{print $2}'`' as '`echo ${_r} | tr '$' ' ' | awk '{print $3}'`']')
   done
   _values 'node' ${_nodes_list[@]}
+}
+
+__kube_get_api_resources(){
+  local -a _api_result _api_status _api_list
+  _api_result=(`kubectl api-resources | tail -n +2 | tr ' ' '$'`)
+  _api_list=(`kubectl api-resources | tail -n +2 | awk '{print $1}'`)
+  _values 'api resources' ${_api_list[@]}
 }
 
 __create_cmd(){
@@ -379,7 +384,7 @@ _kubectl(){
         explain)
           _arguments \
             ${_global_flags[@]} \
-            "*: :{_describe 'explain command' _kube_api_resources}"
+            "1: :{_alternative ':get_resources:__kube_get_api_resources' }"
         ;;
 
         get)
@@ -407,7 +412,7 @@ _kubectl(){
             '--use-openapi-print-columns[If true, use x-kubernetes-print-column metadata (if present) from the OpenAPI schema for displaying a resource.]' \
             '(-w --watch)'{-w,--watch}'[After listing/getting the requested object, watch for changes. Uninitialized objects are excluded if no object name is provided.]' \
             '--watch-only[Watch for changes to the requested object(s), without listing/getting first.]' \
-            "1: :{_describe 'get resources' _kube_api_resources}"
+            "1: :{_alternative ':get_resources:__kube_get_api_resources' }"
         ;;
 
         edit)
@@ -554,7 +559,7 @@ _kubectl(){
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--show-events[If true, display events related to the described object.]' \
-            "1: :{_describe 'describe_resources' _kube_api_resources}"
+            "1: :{_alternative ':get_resources:__kube_get_api_resources' }"
         ;;
 
         logs)
@@ -667,7 +672,7 @@ _kubectl(){
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
             '--type[The type of patch being provided; one of \[json merge strategic\]]' \
-            "1: :{_describe 'patch_nodes' _kube_api_resources}"
+            "1: :{_alternative ':get_resources:__kube_get_api_resources' }"
         ;;
         replace)
           _arguments \
@@ -793,3 +798,4 @@ _kubectl(){
     ;;
   esac
 }
+
