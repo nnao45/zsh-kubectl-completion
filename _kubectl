@@ -1,112 +1,133 @@
 #compdef kubectl
 # Support kubectl version v1.12.2
-# inspired by
+# Inspired by
 #   https://github.com/zsh-users/zsh-completions/blob/master/src/_golang
 #   https://github.com/felixr/docker-zsh-completion/blob/master/_docker
 #   https://github.com/git/git/blob/master/contrib/completion/git-completion.zsh
 
 __kube_get_pods(){
   local -a _pods_result _pods_list
+  integer ret=1
   _pods_result=(`kubectl get pods --all-namespaces -o wide | tail -n +2 | tr ' ' '$'`)
   _pods_list=()
   for _r in ${_pods_result}
   do
     _pods_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $2}'`'[ in '`echo ${_r} | tr '$' ' ' | awk '{print $1}'`' at '`echo ${_r} | tr '$' ' ' | awk '{print $8}'`']')
   done
-  _values 'pod' ${_pods_list[@]}
+  _values 'pod' ${_pods_list[@]} && ret=0
+  return ret
 }
 
 __kube_get_namespaces(){
   local -a _ns_result_ns_list
+  integer ret=1
   _ns_result=(`kubectl get namespace | tail -n +2 | tr ' ' '$'`)
   _ns_list=()
   for _r in ${_ns_result}
   do
     _ns_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'['`echo ${_r} | tr '$' ' ' | awk '{print $2}'`']')
   done
-  _values 'namespace' ${_ns_list[@]}
+  _values 'namespace' ${_ns_list[@]} && ret=0
+  return ret
 }
 
 __kube_get_nodes(){
   local -a _nodes_result _nodes_list
+  integer ret=1
   _nodes_result=(`kubectl get node | tail -n +2 | tr ' ' '$'`)
   _nodes_list=()
   for _r in ${_nodes_result}
   do
     _nodes_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'['`echo ${_r} | tr '$' ' ' | awk '{print $2}'`' as '`echo ${_r} | tr '$' ' ' | awk '{print $3}'`']')
   done
-  _values 'node' ${_nodes_list[@]}
+  _values 'node' ${_nodes_list[@]} && ret=0
+  return ret
 }
 
 __kube_get_services(){
   local -a _svc_result _svc_list
+  integer ret=1
   _svc_result=(`kubectl get service | tail -n +2 | tr ' ' '$'`)
   _svc_list=()
   for _r in ${_svc_result}
   do
     _svc_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'[type: '`echo ${_r} | tr '$' ' ' | awk '{print $2}'`' listen '`echo ${_r} | tr '$' ' ' | awk '{print $5}'`']')
   done
-  _values 'service' ${_svc_list[@]}
+  _values 'service' ${_svc_list[@]} && ret=0
+  return ret
 }
 
 __kube_get_componentstatuses(){
   local -a _cps_result _cps_list
+  integer ret=1
   _cps_result=(`kubectl get componentstatuses | tail -n +2 | tr ' ' '$'`)
   _cps_list=()
   for _r in ${_cps_result}
   do
     _cps_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'['`echo ${_r} | tr '$' ' ' | awk '{print $2}'`']')
   done
-  _values 'component statuses' ${_cps_list[@]}
+  _values 'component statuses' ${_cps_list[@]} && ret=0
+  return ret
 }
 
 __kube_get_configmaps(){
   local -a _configmap_list
+  integer ret=1
   _confimap_list=(`kubectl get configmap | tail -n +2 | awk '{print $1}'`)
-  _values 'configmap' ${_configmap_list}
+  _values 'configmap' ${_configmap_list} && ret=0
+  return ret
 }
 
 __kube_get_api_resources(){
   local -a _api_result _api_list
+  integer ret=1
   _api_list=(`kubectl api-resources | tail -n +2 | awk '{print $1}'`)
-  _values 'api resource' ${_api_list[@]}
+  _values 'api resource' ${_api_list[@]} && ret=0
+  return ret
 }
 
 __kube_get_endpoints(){
   local -a _ep_result _ep_list
+  integer ret=1
   _ep_result=(`kubectl get endpoints | tail -n +2 | tr ' ' '$'`)
   _ep_list=()
   for _r in ${_ep_result}
   do
     _ep_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'[listen '`echo ${_r} | tr '$' ' ' | awk '{print $2}'`']')
   done
-  _values 'endpoint' ${_ep_list[@]}
+  _values 'endpoint' ${_ep_list[@]} && ret=0
+  return ret
 }
 
 __kube_get_events(){
   local -a _ev_result _ev_list
+  integer ret=1
   _ev_result=(`kubectl get events --all-namespaces | tail -n +2 | tr ' ' '$'`)
   _ev_list=()
   for _r in ${_ev_result}
   do
     _ev_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $5}'`'['`echo ${_r} | tr '$' ' ' | awk '{print $9}'`']')
   done
-  _values 'event' ${_ev_list[@]}
+  _values 'event' ${_ev_list[@]} && ret=0
+  return ret
 }
 
 __kube_get_pvc(){
   local -a _pvc_result _pvc_list
+  integer ret=1
   _pvc_result=(`kubectl get persistentvolumeclaims --all-namespaces| tail -n +2 | tr ' ' '$'`)
   _pvc_list=()
   for _r in ${_pvc_result}
   do
     _pvc_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $2}'`'[volume '`echo ${_r} | tr '$' ' ' | awk '{print $4}'`' in '`echo ${_r} | tr '$' ' ' | awk '{print $1}'`']')
   done
-  _values 'persistentvolumeclaim' ${_pvc_list[@]}
+  _values 'persistentvolumeclaim' ${_pvc_list[@]} && ret=0
+  return ret
 }
 
 __kube_get_pv(){
   local -a _pv_result _pv_list
+  integer ret=1
   _pv_result=(`kubectl get persistentvolumes --all-namespaces| tail -n +2 | tr ' ' '$'`)
   _pv_list=()
   for _r in ${_pv_result}
@@ -114,113 +135,133 @@ __kube_get_pv(){
     _pv_claim=`echo ${_r} | tr '$' ' ' | awk '{print $6}'`
     _pv_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'[claim '`echo ${_pv_claim} | awk -F '/' '{print $2}'`' in '`echo ${_pv_claim} | awk -F '/' '{print $1}'`']')
   done
-    _values 'persistentvolume' ${_pv_list[@]}
+  _values 'persistentvolume' ${_pv_list[@]} && ret=0
+  return ret
 }
 
 __kube_get_secrets(){
   local -a _sc_result _sc_list
+  integer ret=1
   _sc_result=(`kubectl get secrets | tail -n +2 | tr ' ' '$'`)
   _sc_list=()
   for _r in ${_sc_result}
   do
     _sc_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'['`echo ${_r} | tr '$' ' ' | awk '{print $2}'`']')
   done
-  _values 'secret' ${_sc_list}
+  _values 'secret' ${_sc_list} && ret=0
+  return ret
 }
 
 __kube_get_serviceaccounts(){
   local -a _svca_result _svca_list
+  integer ret=1
   _svca_result=(`kubectl get serviceaccounts --all-namespaces| tail -n +2 | tr ' ' '$'`)
   _svca_list=()
   for _r in ${_svca_result}
   do
     _svca_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $2}'`'[ in '`echo ${_r} | tr '$' ' ' | awk '{print $1}'`']')
   done
-  _values 'serviceaccount' ${_svca_list}
+  _values 'serviceaccount' ${_svca_list} && ret=0
+  return ret
 }
 
 __kube_get_apiservices(){
   local -a _asvc_result _asvc_list
+  integer ret=1
   _asvc_result=(`kubectl get apiservices | tail -n +2 | tr ' ' '$'`)
   _asvc_list=()
   for _r in ${_asvc_result}
   do
     _asvc_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'[ created_at '`echo ${_r} | tr '$' ' ' | awk '{print $2}'`']')
   done
-  _values 'apiservice' ${_asvc_list}
+  _values 'apiservice' ${_asvc_list} && ret=0
+  return ret
 }
 
 __kube_get_controllerrevisions(){
   local -a _ctlv_result _ctlv_list
+  integer ret=1
   _ctlv_result=(`kubectl get controllerrevisions --all-namespaces | tail -n +2 | tr ' ' '$'`)
   _ctlv_list=()
   for _r in ${_ctlv_result}
   do
     _ctlv_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $2}'`'['`echo ${_r} | tr '$' ' ' | awk '{print $3}'`' in '`echo ${_r} | tr '$' ' ' | awk '{print $1}'`']')
   done
-  _values 'controllerservice' ${_ctlv_list}
-
+  _values 'controllerservice' ${_ctlv_list} && ret=0
+  return ret
 }
 
 __kube_get_daemonsets(){
   local -a _dset_result _dset_list
+  integer ret=1
   _dset_result=(`kubectl get daemonsets --all-namespaces | tail -n +2 | tr ' ' '$'`)
   _dset_list=()
   for _r in ${_dset_result}
   do
     _dset_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $2}'`'[ in '`echo ${_r} | tr '$' ' ' | awk '{print $1}'`']')
   done
-  _values 'daemonset' ${_dset_list}
+  _values 'daemonset' ${_dset_list} && ret=0
+  return ret
 }
 
 __kube_get_deployments(){
   local -a _dp_result _dp_list
+  integer ret=1
   _dp_result=(`kubectl get deployments --all-namespaces | tail -n +2 | tr ' ' '$'`)
   _dp_list=()
   for _r in ${_dp_result}
   do
     _dp_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $2}'`'[ in '`echo ${_r} | tr '$' ' ' | awk '{print $1}'`']')
   done
-  _values 'deployment' ${_dp_list}
+  _values 'deployment' ${_dp_list} && ret=0
+  return ret
 }
 
 __kube_get_ingresses(){
   local -a _ing_result _ing_list
+  integer ret=1
   _ing_result=(`kubectl get ingresses --all-namespaces | tail -n +2 | tr ' ' '$'`)
   _ing_list=()
   for _r in ${_ing_result}
   do
     _ing_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $2}'`'[ in '`echo ${_r} | tr '$' ' ' | awk '{print $1}'`']')
   done
-  _values 'ingress' ${_ing_list}
+  _values 'ingress' ${_ing_list} && ret=0
+  return ret
 }
 
 __kube_get_networkpolicies(){
   local -a _nwp_result _nwp_list
+  integer ret=1
   _nwp_result=(`kubectl get networkpolicies --all-namespaces | tail -n +2 | tr ' ' '$'`)
   _nwp_list=()
   for _r in ${_nwp_result}
   do
     _nwp_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $2}'`'[ in '`echo ${_r} | tr '$' ' ' | awk '{print $1}'`']')
   done
-  _values 'networkpolicie' ${_nwp_list}
+  _values 'networkpolicie' ${_nwp_list} && ret=0
+  return ret
 }
 
 __kube_get_clusterrolebindings(){
   local -a _csb_list
+  integer ret=1
   _csb_list=(`kubectl get clusterrolebindings | tail -n +2 | awk '{print $1}' | tr ':' '\\\:'`)
-  _values 'clusterrolebinding' ${_csb_list[@]}
+  _values 'clusterrolebinding' ${_csb_list[@]} && ret=0
+  return ret
 }
 
 __kube_get_storageclasses(){
   local -a _stc_result _stc_list
+  integer ret=1
   _stc_result=(`kubectl get storageclasses | tail -n +2 | tr ' ' '$'`)
   _stc_list=()
   for _r in ${_stc_result}
   do
     _stc_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'['`echo ${_r} | tr '$' ' ' | awk '{print $2}'`']')
   done
-  _values 'storageclasses' ${_stc_list}
+  _values 'storageclasses' ${_stc_list} && ret=0
+  return ret
 }
 
 __hook_api_resources(){
@@ -323,6 +364,7 @@ __hook_api_resources(){
 
 __hook_api_namespaces(){
   local -a __hook_ns _hook_ns_result
+  integer ret=1
   case $words[2] in
     events)
       _hook_ns_result=(`kubectl get events --all-namespaces | tail -n +2 | tr ' ' '$'`)
@@ -334,7 +376,7 @@ __hook_api_namespaces(){
           break
         fi
       done
-      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}'
+      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}' && ret=0
     ;;
     persistentvolumeclaims)
       _hook_ns_result=(`kubectl get persistentvolumeclaims --all-namespaces | tail -n +2 | tr ' ' '$'`)
@@ -346,7 +388,7 @@ __hook_api_namespaces(){
           break
         fi
       done
-      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}'
+      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}' && ret=0
     ;;
     persistentvolumes)
       _hook_ns_result=(`kubectl get persistentvolumes --all-namespaces | tail -n +2 | tr ' ' '$'`)
@@ -358,7 +400,7 @@ __hook_api_namespaces(){
           break
         fi
       done
-      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}'
+      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}' && ret=0
     ;;
     pods)
       _hook_ns_result=(`kubectl get pods --all-namespaces | tail -n +2 | tr ' ' '$'`)
@@ -370,7 +412,7 @@ __hook_api_namespaces(){
         break
         fi
       done
-      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}'
+      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}' && ret=0
     ;;
     serviceaccounts)
       _hook_ns_result=(`kubectl get serviceaccounts --all-namespaces | tail -n +2 | tr ' ' '$'`)
@@ -382,7 +424,7 @@ __hook_api_namespaces(){
         break
         fi
       done
-      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}'
+      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}' && ret=0
     ;;
     services)
       _hook_ns_result=(`kubectl get services --all-namespaces | tail -n +2 | tr ' ' '$'`)
@@ -394,7 +436,7 @@ __hook_api_namespaces(){
         break
         fi
       done
-      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}' 
+      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}'  && ret=0
     ;;
     controllerrevisions)
       _hook_ns_result=(`kubectl get controllerrevisions --all-namespaces | tail -n +2 | tr ' ' '$'`)
@@ -406,7 +448,7 @@ __hook_api_namespaces(){
         break
         fi
       done
-      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}'  
+      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}' && ret=0
     ;;
     daemonsets)
       _hook_ns_result=(`kubectl get daemonsets --all-namespaces | tail -n +2 | tr ' ' '$'`)
@@ -418,7 +460,7 @@ __hook_api_namespaces(){
         break
         fi
       done
-      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}'
+      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}' && ret=0
     ;;
     deployments)
       _hook_ns_result=(`kubectl get deployments --all-namespaces | tail -n +2 | tr ' ' '$'`)
@@ -430,7 +472,7 @@ __hook_api_namespaces(){
         break
         fi
       done
-      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}'
+      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}' && ret=0
     ;;
     ingresses)
       _hook_ns_result=(`kubectl get ingresses --all-namespaces | tail -n +2 | tr ' ' '$'`)
@@ -442,15 +484,18 @@ __hook_api_namespaces(){
         break
         fi
       done
-      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}'
+      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}' && ret=0
     ;;
     *)
     ;;
   esac
+
+  return ret
 }
 
 __pod_hook_namespace(){
   local -a __hook_ns _hook_ns_result
+  integer ret=1
   _hook_ns_result=(`kubectl get pods --all-namespaces | tail -n +2 | tr ' ' '$'`)
   for _r in ${_hook_ns_result}
   do
@@ -460,10 +505,13 @@ __pod_hook_namespace(){
       break
     fi
   done
-  _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}'
+  _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}' && ret=0
+
+  return ret
 }
 __create_cmd(){
   local -a _create_cmds
+  integer ret=1
   _create_cmds=(
   'clusterrole[Create a ClusterRole.]'
   'clusterrolebinding[Create a ClusterRoleBinding for a particular ClusterRole]'
@@ -481,11 +529,14 @@ __create_cmd(){
   'service[Create a service using specified subcommand.]'
   'serviceaccount[Create a service account with the specified name.]'
   )
-  _values 'create command' $_create_cmds[@]
+  _values 'create command' $_create_cmds[@] && ret=0
+
+  return ret
 }
 
 __expose_cmd(){
   local -a _expose_cmds
+  integer ret=1
   _expose_cmds=(
   'pod:expose pod:__kube_get_pods'
   'service:expose service:__kube_get_services'
@@ -493,11 +544,14 @@ __expose_cmd(){
   'deployment'
   'replicaset'
   )
-  _values 'expose command' $_expose_cmds[@]
+  _values 'expose command' $_expose_cmds[@] && ret=0
+
+  return ret
 }
 
 __set_cmd(){
   local -a _set_cmds
+  integer ret=1
   _set_cmds=(
   'env[Update environment variables on a pod template]'
   'image[Update image of a pod template]'
@@ -506,11 +560,14 @@ __set_cmd(){
   'serviceaccount[Update ServiceAccount of a resource]'
   'subject[Update User, Group or ServiceAccount in a RoleBinding/ClusterRoleBinding]'
   )
-  _values 'set command' $_set_cmds[@]
+  _values 'set command' $_set_cmds[@] && ret=0
+
+  return ret
 }
 
 __rollout_cmd(){
   local -a _rollout_cmds
+  integer ret=1
   _rollout_cmds=(
   'history[View rollout history]'
   'pause[Mark the provided resource as paused]'
@@ -518,73 +575,97 @@ __rollout_cmd(){
   'status[Show the status of the rollout]'
   'undo[Undo a previous rollout]'
   )
-  _values 'rollout command' $_rollout_cmds[@]
+  _values 'rollout command' $_rollout_cmds[@] && ret=0
+
+  return ret
 }
 
 __certificate_cmd(){
   local -a _certificate_cmds
+  integer ret=1
   _certificate_cmds=(
   'approve[Approve a certificate signing request]'
   'deny[Deny a certificate signing request]'
   )
-  _values 'certificate command' $_certificate_cmds[@]
+  _values 'certificate command' $_certificate_cmds[@] && ret=0
+
+  return ret
 }
 
 __clusterinfo_cmd(){
   local -a _clusterinfo_cmds
+  integer ret=1
   _clusterinfo_cmds=(
   'dump[Dump lots of relevant info for debugging and diagnosis]'
   )
-  _values 'clusterinfo command' $_clusterinfo_cmds[@]
+  _values 'clusterinfo command' $_clusterinfo_cmds[@] && ret=0
+
+  return ret
 }
 
 __top_cmd(){
   local -a _top_cmds
+  integer ret=1
   _top_cmds=(
   'node[Display Resource (CPU/Memory/Storage) usage of nodes]'
   'pod[Display Resource (CPU/Memory/Storage) usage of pods]'
   )
-  _values 'top command' $_top_cmds[@]
+  _values 'top command' $_top_cmds[@] && ret=0
+
+  return ret
 }
 
 __auth_cmd(){
   local -a _auth_cmds
+  integer ret=1
   _auth_cmds=(
   'can-i[Check whether an action is allowed]'
   'reconcile[Reconciles rules for RBAC Role, RoleBinding, ClusterRole, and ClusterRole binding objects]'
   )
-  _values 'auth command' $_auth_cmds[@]
+  _values 'auth command' $_auth_cmds[@] && ret=0
+
+  return ret
 }
 
 __apply_cmd(){
   local -a _apply_cmds
+  integer ret=1
   _apply_cmds=(
   'edit-last-applied[Edit latest last-applied-configuration annotations of a resource/object]'
   'set-last-applied[Set the last-applied-configuration annotation on a live object to match the contents of a file.]'
   'view-last-applied[View latest last-applied-configuration annotations of a resource/object]'
   )
-  _values 'apply command' $_apply_cmds[@]
+  _values 'apply command' $_apply_cmds[@] && ret=0
+
+  return ret
 }
 
 __completion_cmd(){
   local -a _completion_cmds
+  integer ret=1
   _completion_cmds=(
   'zsh[Shell designed for interactive use, although it is also a powerful scripting language.]'
   'bash[Unix shell and command language written by Brian Fox for the GNU Project as a free software replacement for the Bourne shell.]'
   )
-  _values 'completion command' $_completion_cmds[@]
+  _values 'completion command' $_completion_cmds[@] && ret=0
+
+  return ret
 }
 
 __alpha_cmd(){
   local -a _alpha_cmds
+  integer ret=1
   _alpha_cmds=(
   'diff[Diff different versions of configurations]'
   )
-  _values 'alpha command' $_alpha_cmds[@]
+  _values 'alpha command' $_alpha_cmds[@] && ret=0
+
+  return ret
 }
 
 __config_cmd(){
   local -a _config_cmds
+  integer ret=1
   _config_cmds=(
   'current-context[Displays the current-context]'
   'delete-cluster[Delete the specified cluster from the kubeconfig]'
@@ -600,15 +681,20 @@ __config_cmd(){
   'use-context[Sets the current-context in a kubeconfig file]'
   'view[Display merged kubeconfig settings or a specified kubeconfig file]'
   )
-  _values 'config command' $_config_cmds[@]
+  _values 'config command' $_config_cmds[@] && ret=0
+
+  return ret
 }
 
 __plugin_cmd(){
   local -a _plugin_cmds
+  integer ret=1
   _plugin_cmds=(
   'list[list all visible plugin executables on a user'\''s PATH]'
   )
-  _values 'plugin command' $_plugin_cmds[@]
+  _values 'plugin command' $_plugin_cmds[@] && ret=0
+
+  return ret
 }
 
 _kubectl(){
@@ -691,10 +777,12 @@ _kubectl(){
   '--vmodule[comma-separated list of pattern=N settings for file-filtered logging]' 
   )
 
+  integer ret=1
+
   _arguments  \
     ${_global_flags[@]} \
     "1: :{_describe 'basic command' _basic_cmds}" \
-    '*:: :->args'
+    '*:: :->args' && ret=0
 
   case $state in
     args)
@@ -716,7 +804,7 @@ _kubectl(){
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
             '--validate[If true, use a schema to validate the input before sending it]' \
             '--verb[Verb that applies to the resources contained in the rule]' \
-            "1: :{_alternative ':create_cmd:__create_cmd' }"
+            "1: :{_alternative ':create_cmd:__create_cmd' }"  && ret=0
         ;;
 
         expose)
@@ -745,7 +833,7 @@ _kubectl(){
             '--target-port[Name or number for the port on the container that the service should direct traffic to. Optional.]' \
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
             '--type[Type for this service: ClusterIP, NodePort, LoadBalancer, or ExternalName. Default is '\''ClusterIP'\''.]' \
-            "1: :{_alternative ':expose_cmd:__expose_cmd' }"
+            "1: :{_alternative ':expose_cmd:__expose_cmd' }"  && ret=0
         ;;
 
         run)
@@ -789,19 +877,19 @@ _kubectl(){
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
             '--timeout[The length of time to wait before giving up on a delete, zero means determine a timeout from the size of the object]' \
             '(-t --tty)'{-t,--tty}'[Allocated a TTY for each container in the pod.]' \
-            '--wait[If true, wait for resources to be gone before returning. This waits for finalizers.]'
+            '--wait[If true, wait for resources to be gone before returning. This waits for finalizers.]' && ret=0
         ;;
 
         set)
           _arguments \
             ${_global_flags[@]} \
-            "1: :{_alternative ':set_cmd:__set_cmd' }"
+            "1: :{_alternative ':set_cmd:__set_cmd' }" && ret=0
         ;;
 
         explain)
           _arguments \
             ${_global_flags[@]} \
-            "1: :{_alternative ':get_resources:__kube_get_api_resources' }"
+            "1: :{_alternative ':get_resources:__kube_get_api_resources' }" && ret=0
         ;;
 
         get)
@@ -831,7 +919,7 @@ _kubectl(){
             '--watch-only[Watch for changes to the requested object(s), without listing/getting first.]' \
             "1: :{_alternative ':get_resources:__kube_get_api_resources' }" \
             "2: :{_alternative ':get_resources:__hook_api_resources'}" \
-            "3: :{_alternative ':get_resources:__hook_api_namespaces'}"
+            "3: :{_alternative ':get_resources:__hook_api_namespaces'}" && ret=0
         ;;
 
         edit)
@@ -848,7 +936,9 @@ _kubectl(){
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
             '--validate[If true, use a schema to validate the input before sending it]' \
             '--windows-line-endings[Defaults to the line ending native to your platform.]' \
-            "1: :{_describe 'edit resources' _kube_api_resources}"
+            "1: :{_alternative ':get_resources:__kube_get_api_resources' }" \
+            "2: :{_alternative ':get_resources:__hook_api_resources'}" \
+            "3: :{_alternative ':get_resources:__hook_api_namespaces'}" && ret=0
         ;;
 
         delete)
@@ -868,13 +958,15 @@ _kubectl(){
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--timeout[The length of time to wait before giving up on a delete, zero means determine a timeout from the size of the object]' \
             '--wait[If true, wait for resources to be gone before returning. This waits for finalizers.]' \
-            "1: :{_describe 'delete resources' _kube_api_resources}"
+            "1: :{_alternative ':get_resources:__kube_get_api_resources' }" \
+            "2: :{_alternative ':get_resources:__hook_api_resources'}" \
+            "3: :{_alternative ':get_resources:__hook_api_namespaces'}" && ret=0
         ;;
 
         rollout)
           _arguments \
             ${_global_flags[@]} \
-            "1: :{_alternative ':rollout_cmd:__rollout_cmd' }"
+            "1: :{_alternative ':rollout_cmd:__rollout_cmd' }" && ret=0
         ;;
 
         scale)
@@ -890,7 +982,7 @@ _kubectl(){
             '--resource-version[Requires that the current resource version match this value in order to scale.]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
-            '--timeout[The length of time to wait before giving up on a scale operation, zero means don'\''t wait. Any other values should contain a corresponding time unit (e.g. 1s, 2m, 3h).]' \
+            '--timeout[The length of time to wait before giving up on a scale operation, zero means don'\''t wait. Any other values should contain a corresponding time unit (e.g. 1s, 2m, 3h).]'  && ret=0
         ;;
 
         autoscale)
@@ -908,31 +1000,31 @@ _kubectl(){
             '--record[Record current kubectl command in the resource annotation. If set to false, do not record the command. If set to true, record the command. If not set, default to updating the existing annotation value only if one already exists.]' \
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
             '--save-config[If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.]' \
-            '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
+            '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]'  && ret=0
         ;;
 
         certificate)
           _arguments \
             ${_global_flags[@]} \
-            "1: :{_alternative ':certificate_cmd:__certificate_cmd' }"
+            "1: :{_alternative ':certificate_cmd:__certificate_cmd' }" && ret=0
         ;;
 
         cluster-info)
           _arguments \
             ${_global_flags[@]} \
-            "1: :{_alternative ':clusterinfo_cmd:__clusterinfo_cmd' }"
+            "1: :{_alternative ':clusterinfo_cmd:__clusterinfo_cmd' }" && ret=0
         ;;
 
         top)
           _arguments \
             ${_global_flags[@]} \
-            "1: :{_alternative ':top_cmd:__top_cmd' }"
+            "1: :{_alternative ':top_cmd:__top_cmd' }" && ret=0
         ;;
 
         cordon)
           _arguments \
             ${_global_flags[@]} \
-            "1: :{_alternative ':cordon_node:__kube_get_nodes' }"
+            "1: :{_alternative ':cordon_node:__kube_get_nodes' }" && ret=0
         ;;
 
         uncordon)
@@ -940,7 +1032,7 @@ _kubectl(){
             ${_global_flags[@]} \
             '--dry-run[If true, only print the object that would be sent, without sending it.]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
-            "1: :{_alternative ':uncordon_node:__kube_get_nodes' }"
+            "1: :{_alternative ':uncordon_node:__kube_get_nodes' }" && ret=0
         ;;
 
         drain)
@@ -954,7 +1046,7 @@ _kubectl(){
             '--pod-selector[Label selector to filter pods on the node]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--timeout[The length of time to wait before giving up, zero means infinite]' \
-            "1: :{_alternative ':drain_node:__kube_get_nodes' }"
+            "1: :{_alternative ':drain_node:__kube_get_nodes' }" && ret=0
         ;;
 
         taint)
@@ -967,6 +1059,7 @@ _kubectl(){
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
             '--validate[If true, use a schema to validate the input before sending it]' \
+            "1: :{_alternative ':taint_node:__kube_get_nodes' }" && ret=0
         ;;
 
         describe)
@@ -980,7 +1073,7 @@ _kubectl(){
             '--show-events[If true, display events related to the described object.]' \
             "1: :{_alternative ':get_resources:__kube_get_api_resources' }" \
             "2: :{_alternative ':get_resources:__hook_api_resources'}" \
-            "3: :{_alternative ':get_resources:__hook_api_namespaces'}"
+            "3: :{_alternative ':get_resources:__hook_api_namespaces'}" && ret=0
         ;;
 
         logs)
@@ -998,7 +1091,7 @@ _kubectl(){
             '--tail[Lines of recent log file to display. Defaults to -1 with no selector, showing all log lines otherwise 10, if a selector is provided.]' \
             '--timestamps[Include timestamps on each line in the log output]' \
             "1: :{_alternative ':log_pods:__kube_get_pods' }" \
-            "2: :{_alternative ':namespace:__pod_hook_namespace' }"
+            "2: :{_alternative ':namespace:__pod_hook_namespace' }" && ret=0
         ;;
 
         attach)
@@ -1009,7 +1102,7 @@ _kubectl(){
             '(-i --stdin)'{-i,--stdin}'[Pass stdin to the container]' \
             '(-t --tty)'{-t,--tty}'[Stdin is a TTY]' \
             "1: :{_alternative ':log_pods:__kube_get_pods' }" \
-            "2: :{_alternative ':namespace:__pod_hook_namespace' }"
+            "2: :{_alternative ':namespace:__pod_hook_namespace' }" && ret=0
         ;;
 
         exec)
@@ -1020,13 +1113,13 @@ _kubectl(){
             '(-i --stdin)'{-i,--stdin}'[Pass stdin to the container]' \
             '(-t --tty)'{-t,--tty}'[Stdin is a TTY]' \
             "1: :{_alternative ':log_pods:__kube_get_pods' }" \
-            "2: :{_alternative ':namespace:__pod_hook_namespace' }"
+            "2: :{_alternative ':namespace:__pod_hook_namespace' }" && ret=0
         ;;
 
         port-forward)
           _arguments \
             ${_global_flags[@]} \
-            '--pod-running-timeout:[The length of time (like 5s, 2m, or 3h, higher than zero) to wait until at least one pod is running]' \
+            '--pod-running-timeout:[The length of time (like 5s, 2m, or 3h, higher than zero) to wait until at least one pod is running]'  && ret=0
         ;;
 
         proxy)
@@ -1042,19 +1135,19 @@ _kubectl(){
             '--reject-paths[Regular expression for paths that the proxy should reject. Paths specified here will be rejected even accepted by \-\-accept-paths.]' \
             '(-u --unix-socket)'{-u,--unix-socket}'[Unix socket on which to run the proxy.]' \
             '(-w --www)'{-w,--www}'[Also serve static files from the given directory under the specified prefix.]' \
-            '(-P --www-prefix)'{-P,--www-prefix}'[Prefix to serve static files under, if static file directory is specified.]'
+            '(-P --www-prefix)'{-P,--www-prefix}'[Prefix to serve static files under, if static file directory is specified.]' && ret=0
         ;;
 
         cp)
           _arguments \
             ${_global_flags[@]} \
-            '(-c --container)'{-c,--container}'[Container name. If omitted, the first container in the pod will be chosen]'
+            '(-c --container)'{-c,--container}'[Container name. If omitted, the first container in the pod will be chosen]' && ret=0
         ;;
 
         auth)
           _arguments \
             ${_global_flags[@]} \
-            "1: :{_alternative ':auth_cmd:__auth_cmd' }"
+            "1: :{_alternative ':auth_cmd:__auth_cmd' }" && ret=0
         ;;
 
         apply)
@@ -1080,7 +1173,7 @@ _kubectl(){
             '--timeout[The length of time to wait before giving up on a delete, zero means determine a timeout from the size of the object]' \
             '--validate[If true, use a schema to validate the input before sending it]' \
             '--wait[If true, wait for resources to be gone before returning. This waits for finalizers.]' \
-            "*: :{_alternative ':apply_cmd:__apply_cmd' }"
+            "*: :{_alternative ':apply_cmd:__apply_cmd' }" && ret=0
         ;;
 
         patch)
@@ -1096,7 +1189,7 @@ _kubectl(){
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
             '--type[The type of patch being provided; one of \[json merge strategic\]]' \
-            "1: :{_alternative ':get_resources:__kube_get_api_resources' }"
+            "1: :{_alternative ':get_resources:__kube_get_api_resources' }" && ret=0
         ;;
         replace)
           _arguments \
@@ -1112,7 +1205,7 @@ _kubectl(){
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
             '--timeout[The length of time to wait before giving up on a delete, zero means determine a timeout from the size of the object]' \
             '--validate[If true, use a schema to validate the input before sending it]' \
-            '--wait[If true, wait for resources to be gone before returning. This waits for finalizers.]'
+            '--wait[If true, wait for resources to be gone before returning. This waits for finalizers.]' && ret=0
         ;;
         wait)
           _arguments \
@@ -1125,7 +1218,7 @@ _kubectl(){
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
-            '--timeout[The length of time to wait before giving up on a delete, zero means determine a timeout from the size of the object]'
+            '--timeout[The length of time to wait before giving up on a delete, zero means determine a timeout from the size of the object]' && ret=0
         ;;
         convert)
           _arguments \
@@ -1137,7 +1230,7 @@ _kubectl(){
            '--output-version[Output the formatted object with the given group version (for ex:'\''extensions/v1beta1'\'').)]' \
            '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
            '--template[Template string or path to template file to use when -o=go-template,-o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
-           '--validate[If true, use a schema to validate the input before sending it]'
+           '--validate[If true, use a schema to validate the input before sending it]' && ret=0
         ;;
         label)
           _arguments \
@@ -1156,7 +1249,7 @@ _kubectl(){
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
             '--resource-version[If non-empty, the labels update will only succeed if this is the current resource-version for the object. Only valid when specifying a single resource.]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
-            '--template[Template string or path to template file to use when -o=go-template,-o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]'
+            '--template[Template string or path to template file to use when -o=go-template,-o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' && ret=0
         ;;
         annotate)
           _arguments \
@@ -1175,17 +1268,17 @@ _kubectl(){
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
             '--resource-version[If non-empty, the labels update will only succeed if this is the current resource-version for the object. Only valid when specifying a single resource.]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
-            '--template[Template string or path to template file to use when -o=go-template,-o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]'
+            '--template[Template string or path to template file to use when -o=go-template,-o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' && ret=0
        ;;
        completion)
          _arguments \
            ${_global_flags[@]} \
-           "1: :{_alternative ':completion_cmd:__completion_cmd' }"
+           "1: :{_alternative ':completion_cmd:__completion_cmd' }" && ret=0
        ;;
        alpha)
          _arguments \
            ${_global_flags[@]} \
-           "1: :{_alternative ':alpha_cmd:__alpha_cmd' }"
+           "1: :{_alternative ':alpha_cmd:__alpha_cmd' }" && ret=0
        ;;
        api-resources)
          _arguments \
@@ -1195,31 +1288,33 @@ _kubectl(){
            '--namespaced[If false, non-namespaced resources will be returned, otherwise returning namespaced resources by default]' \
            '--no-headers[When using the default or custom-column output format, don'\''t print headers(default print headers).]' \
            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]' \
-           '--verbs[Limit to resources that support the specified verbs.]'
+           '--verbs[Limit to resources that support the specified verbs.]' && ret=0
        ;;
        api-versions)
          _arguments \
-           ${_global_flags[@]}
+           ${_global_flags[@]} && ret=0
        ;;
        config)
           _arguments \
             ${_global_flags[@]} \
-            "1: :{_alternative ':config_cmd:__config_cmd' }"
+            "1: :{_alternative ':config_cmd:__config_cmd' }" && ret=0
        ;;
        plugin)
          _arguments \
            ${_global_flags[@]} \
-           "1: :{_alternative ':plugin_cmd:__plugin_cmd' }"
+           "1: :{_alternative ':plugin_cmd:__plugin_cmd' }" && ret=0
        ;;
        version)
          _arguments \
            ${_global_flags[@]} \
            '--client[Client version only (no server required).]' \
            '(-o --output)'{-o,--output}'[One of '\''yaml'\'' or '\''json'\'']' \
-           '--short[Print just the version number.]'
+           '--short[Print just the version number.]' && ret=0
        ;;
       esac
     ;;
   esac
+
+  return ret
 }
 
