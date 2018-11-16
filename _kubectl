@@ -60,7 +60,7 @@ __kube_get_componentstatuses(){
   _values 'component statuses' ${_cps_list[@]}
 }
 
-__kube_get_configmap(){
+__kube_get_configmaps(){
   local -a _configmap_list
   _confimap_list=(`kubectl get configmap | tail -n +2 | tr ' ' '$'`)
   _values 'configmap' ${_configmap_list}
@@ -117,6 +117,28 @@ __kube_get_pv(){
     _values 'persistentvolume' ${_pv_list[@]}
 }
 
+__kube_get_secrets(){
+  local -a _sc_result _sc_list
+  _sc_result=(`kubectl get secrets | tail -n +2 | tr ' ' '$'`)
+  _sc_list=()
+  for _r in ${_sc_result}
+  do
+    _sc_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'['`echo ${_r} | tr '$' ' ' | awk '{print $2}'`']')
+  done
+  _values 'secret' ${_sc_list}
+}
+
+__kube_get_serviceaccounts(){
+  local -a _svca_result _svca_list
+  _svca_result=(`kubectl get serviceaccounts --all-namespaces| tail -n +2 | tr ' ' '$'`)
+  _svca_list=()
+  for _r in ${_svca_result}
+  do
+    _svca_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $2}'`'[ in '`echo ${_r} | tr '$' ' ' | awk '{print $1}'`']')
+  done
+  _values 'serviceaccount' ${_svca_list}
+}
+
 __hook_api_resources(){
   local -a __hook_rs _hook_rs
   case $words[2] in
@@ -127,7 +149,7 @@ __hook_api_resources(){
       __kube_get_componentstatuses
     ;;
     configmaps)
-      __kube_get_configmap
+      __kube_get_configmaps
     ;;
     endpoints)
       __kube_get_endpoints
@@ -149,6 +171,24 @@ __hook_api_resources(){
     ;;
     persistentvolumes)
       __kube_get_pv
+    ;;
+    pods)
+      __kube_get_pods
+    ;;
+    podtemplates)
+      #TODO
+    ;;
+    replicationcontrollers)
+      #TODO
+    ;;
+    resourcequotas)
+      #TODO
+    ;;
+    secrets)
+      __kube_get_secrets
+    ;;
+    serviceaccounts)
+      __kube_get_serviceaccounts
     ;;
   esac
 }
@@ -180,7 +220,7 @@ __hook_api_namespaces(){
       done
       _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}'
     ;;
-     persistentvolumes)
+    persistentvolumes)
       _hook_ns_result=(`kubectl get persistentvolumes --all-namespaces | tail -n +2 | tr ' ' '$'`)
       for _r in ${_hook_ns_result}
       do
@@ -188,6 +228,30 @@ __hook_api_namespaces(){
         if [ ${_e} = $words[3] ];then
           __hook_ns=`echo ${_r} | tr '$' ' ' | awk '{print $6}' | awk -F '/' '{print $1}'`
           break
+        fi
+      done
+      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}'
+    ;;
+    pods)
+      _hook_ns_result=(`kubectl get pods --all-namespaces | tail -n +2 | tr ' ' '$'`)
+      for _r in ${_hook_ns_result}
+      do
+        _p=`echo ${_r} | tr '$' ' ' | awk '{print $2}'`
+        if [ ${_p} = $words[3] ];then
+          __hook_ns=`echo ${_r} | tr '$' ' ' | awk '{print $1}'`
+        break
+        fi
+      done
+      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}'
+    ;;
+    serviceaccounts)
+      _hook_ns_result=(`kubectl get serviceaccounts --all-namespaces | tail -n +2 | tr ' ' '$'`)
+      for _r in ${_hook_ns_result}
+      do
+        _p=`echo ${_r} | tr '$' ' ' | awk '{print $2}'`
+        if [ ${_p} = $words[3] ];then
+          __hook_ns=`echo ${_r} | tr '$' ' ' | awk '{print $1}'`
+        break
         fi
       done
       _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}'
@@ -726,7 +790,9 @@ _kubectl(){
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--show-events[If true, display events related to the described object.]' \
-            "1: :{_alternative ':get_resources:__kube_get_api_resources' }"
+            "1: :{_alternative ':get_resources:__kube_get_api_resources' }" \
+            "2: :{_alternative ':get_resources:__hook_api_resources'}" \
+            "3: :{_alternative ':get_resources:__hook_api_namespaces'}"
         ;;
 
         logs)
@@ -968,4 +1034,3 @@ _kubectl(){
     ;;
   esac
 }
-
