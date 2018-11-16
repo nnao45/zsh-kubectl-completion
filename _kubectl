@@ -6,7 +6,7 @@
 #   https://github.com/git/git/blob/master/contrib/completion/git-completion.zsh
 
 __kube_get_pods(){
-  local -a _pods_result _pods _pods_list
+  local -a _pods_result _pods_list
   _pods_result=(`kubectl get pods --all-namespaces -o wide | tail -n +2 | tr ' ' '$'`)
   _pods_list=()
   for _r in ${_pods_result}
@@ -17,7 +17,7 @@ __kube_get_pods(){
 }
 
 __kube_get_namespaces(){
-  local -a _ns_result _ns_status _ns_list
+  local -a _ns_result_ns_list
   _ns_result=(`kubectl get namespace | tail -n +2 | tr ' ' '$'`)
   _ns_list=()
   for _r in ${_ns_result}
@@ -28,7 +28,7 @@ __kube_get_namespaces(){
 }
 
 __kube_get_nodes(){
-  local -a _nodes_result _nodes_status _nodes_list
+  local -a _nodes_result _nodes_list
   _nodes_result=(`kubectl get node | tail -n +2 | tr ' ' '$'`)
   _nodes_list=()
   for _r in ${_nodes_result}
@@ -39,7 +39,7 @@ __kube_get_nodes(){
 }
 
 __kube_get_service(){
-  local -a _svc_result _svc_status _svc_list
+  local -a _svc_result _svc_list
   _svc_result=(`kubectl get service | tail -n +2 | tr ' ' '$'`)
   _svc_list=()
   for _r in ${_svc_result}
@@ -49,10 +49,152 @@ __kube_get_service(){
   _values 'service' ${_svc_list[@]}
 }
 
+__kube_get_componentstatuses(){
+  local -a _cps_result _cps_list
+  _cps_result=(`kubectl get componentstatuses | tail -n +2 | tr ' ' '$'`)
+  _cps_list=()
+  for _r in ${_cps_result}
+  do
+    _cps_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'['`echo ${_r} | tr '$' ' ' | awk '{print $2}'`']')
+  done
+  _values 'component statuses' ${_cps_list[@]}
+}
+
+__kube_get_configmap(){
+  local -a _configmap_list
+  _confimap_list=(`kubectl get configmap | tail -n +2 | tr ' ' '$'`)
+  _values 'configmap' ${_configmap_list}
+}
+
 __kube_get_api_resources(){
-  local -a _api_result _api_status _api_list
+  local -a _api_result _api_list
   _api_list=(`kubectl api-resources | tail -n +2 | awk '{print $1}'`)
-  _values 'api resources' ${_api_list[@]}
+  _values 'api resource' ${_api_list[@]}
+}
+
+__kube_get_endpoints(){
+  local -a _ep_result _ep_list
+  _ep_result=(`kubectl get endpoints | tail -n +2 | tr ' ' '$'`)
+  _ep_list=()
+  for _r in ${_ep_result}
+  do
+    _ep_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'[listen '`echo ${_r} | tr '$' ' ' | awk '{print $2}'`']')
+  done
+  _values 'endpoint' ${_ep_list[@]}
+}
+
+__kube_get_events(){
+  local -a _ev_result _ev_list
+  _ev_result=(`kubectl get events --all-namespaces | tail -n +2 | tr ' ' '$'`)
+  _ev_list=()
+  for _r in ${_ev_result}
+  do
+    _ev_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $5}'`'['`echo ${_r} | tr '$' ' ' | awk '{print $9}'`']')
+  done
+  _values 'event' ${_ev_list[@]}
+}
+
+__kube_get_pvc(){
+  local -a _pvc_result _pvc_list
+  _pvc_result=(`kubectl get persistentvolumeclaims --all-namespaces| tail -n +2 | tr ' ' '$'`)
+  _pvc_list=()
+  for _r in ${_pvc_result}
+  do
+    _pvc_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $2}'`'[volume '`echo ${_r} | tr '$' ' ' | awk '{print $4}'`' in '`echo ${_r} | tr '$' ' ' | awk '{print $1}'`']')
+  done
+  _values 'persistentvolumeclaim' ${_pvc_list[@]}
+}
+
+__kube_get_pv(){
+  local -a _pv_result _pv_list
+  _pv_result=(`kubectl get persistentvolumes --all-namespaces| tail -n +2 | tr ' ' '$'`)
+  _pv_list=()
+  for _r in ${_pv_result}
+  do
+    _pv_claim=`echo ${_r} | tr '$' ' ' | awk '{print $6}'`
+    _pv_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'[claim '`echo ${_pv_claim} | awk -F '/' '{print $2}'`' in '`echo ${_pv_claim} | awk -F '/' '{print $1}'`']')
+  done
+    _values 'persistentvolume' ${_pv_list[@]}
+}
+
+__hook_api_resources(){
+  local -a __hook_rs _hook_rs
+  case $words[2] in
+    bindings)
+      #TODO
+    ;;
+    componentstatuses)
+      __kube_get_componentstatuses
+    ;;
+    configmaps)
+      __kube_get_configmap
+    ;;
+    endpoints)
+      __kube_get_endpoints
+    ;;
+    events)
+      __kube_get_events
+    ;;
+    limitranges)
+      #TODO
+    ;;
+    namespaces)
+      __kube_get_namespaces
+    ;;
+    nodes)
+      __kube_get_nodes
+    ;;
+    persistentvolumeclaims)
+      __kube_get_pvc
+    ;;
+    persistentvolumes)
+      __kube_get_pv
+    ;;
+  esac
+}
+
+__hook_api_namespaces(){
+  local -a __hook_ns _hook_ns_result
+  case $words[2] in
+    events)
+      _hook_ns_result=(`kubectl get events --all-namespaces | tail -n +2 | tr ' ' '$'`)
+      for _r in ${_hook_ns_result}
+      do
+        _e=`echo ${_r} | tr '$' ' ' | awk '{print $5}'`
+        if [ ${_e} = $words[3] ];then
+          __hook_ns=`echo ${_r} | tr '$' ' ' | awk '{print $1}'`
+          break
+        fi
+      done
+      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}'
+    ;;
+    persistentvolumeclaims)
+      _hook_ns_result=(`kubectl get persistentvolumeclaims --all-namespaces | tail -n +2 | tr ' ' '$'`)
+      for _r in ${_hook_ns_result}
+      do
+        _e=`echo ${_r} | tr '$' ' ' | awk '{print $2}'`
+        if [ ${_e} = $words[3] ];then
+          __hook_ns=`echo ${_r} | tr '$' ' ' | awk '{print $1}'`
+          break
+        fi
+      done
+      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}'
+    ;;
+     persistentvolumes)
+      _hook_ns_result=(`kubectl get persistentvolumes --all-namespaces | tail -n +2 | tr ' ' '$'`)
+      for _r in ${_hook_ns_result}
+      do
+        _e=`echo ${_r} | tr '$' ' ' | awk '{print $1}'`
+        if [ ${_e} = $words[3] ];then
+          __hook_ns=`echo ${_r} | tr '$' ' ' | awk '{print $6}' | awk -F '/' '{print $1}'`
+          break
+        fi
+      done
+      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}'
+    ;;
+    *)
+    ;;
+  esac
 }
 
 __pod_hook_namespace(){
@@ -86,7 +228,7 @@ __create_cmd(){
   'secret[Create a secret using specified subcommand]'
   'service[Create a service using specified subcommand.]'
   'serviceaccount[Create a service account with the specified name.]'
-  ) 
+  )
   _values 'create command' $_create_cmds[@]
 }
 
@@ -435,7 +577,9 @@ _kubectl(){
             '--use-openapi-print-columns[If true, use x-kubernetes-print-column metadata (if present) from the OpenAPI schema for displaying a resource.]' \
             '(-w --watch)'{-w,--watch}'[After listing/getting the requested object, watch for changes. Uninitialized objects are excluded if no object name is provided.]' \
             '--watch-only[Watch for changes to the requested object(s), without listing/getting first.]' \
-            "1: :{_alternative ':get_resources:__kube_get_api_resources' }"
+            "1: :{_alternative ':get_resources:__kube_get_api_resources' }" \
+            "2: :{_alternative ':get_resources:__hook_api_resources'}" \
+            "3: :{_alternative ':get_resources:__hook_api_namespaces'}"
         ;;
 
         edit)
@@ -682,7 +826,7 @@ _kubectl(){
             '--timeout[The length of time to wait before giving up on a delete, zero means determine a timeout from the size of the object]' \
             '--validate[If true, use a schema to validate the input before sending it]' \
             '--wait[If true, wait for resources to be gone before returning. This waits for finalizers.]' \
-            "1: :{_alternative ':apply_cmd:__apply_cmd' }"
+            "*: :{_alternative ':apply_cmd:__apply_cmd' }"
         ;;
 
         patch)
