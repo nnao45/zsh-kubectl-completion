@@ -38,7 +38,7 @@ __kube_get_nodes(){
   _values 'node' ${_nodes_list[@]}
 }
 
-__kube_get_service(){
+__kube_get_services(){
   local -a _svc_result _svc_list
   _svc_result=(`kubectl get service | tail -n +2 | tr ' ' '$'`)
   _svc_list=()
@@ -62,7 +62,7 @@ __kube_get_componentstatuses(){
 
 __kube_get_configmaps(){
   local -a _configmap_list
-  _confimap_list=(`kubectl get configmap | tail -n +2 | tr ' ' '$'`)
+  _confimap_list=(`kubectl get configmap | tail -n +2 | awk '{print $1}'`)
   _values 'configmap' ${_configmap_list}
 }
 
@@ -139,8 +139,91 @@ __kube_get_serviceaccounts(){
   _values 'serviceaccount' ${_svca_list}
 }
 
+__kube_get_apiservices(){
+  local -a _asvc_result _asvc_list
+  _asvc_result=(`kubectl get apiservices | tail -n +2 | tr ' ' '$'`)
+  _asvc_list=()
+  for _r in ${_asvc_result}
+  do
+    _asvc_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'[ created_at '`echo ${_r} | tr '$' ' ' | awk '{print $2}'`']')
+  done
+  _values 'apiservice' ${_asvc_list}
+}
+
+__kube_get_controllerrevisions(){
+  local -a _ctlv_result _ctlv_list
+  _ctlv_result=(`kubectl get controllerrevisions --all-namespaces | tail -n +2 | tr ' ' '$'`)
+  _ctlv_list=()
+  for _r in ${_ctlv_result}
+  do
+    _ctlv_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $2}'`'['`echo ${_r} | tr '$' ' ' | awk '{print $3}'`' in '`echo ${_r} | tr '$' ' ' | awk '{print $1}'`']')
+  done
+  _values 'controllerservice' ${_ctlv_list}
+
+}
+
+__kube_get_daemonsets(){
+  local -a _dset_result _dset_list
+  _dset_result=(`kubectl get daemonsets --all-namespaces | tail -n +2 | tr ' ' '$'`)
+  _dset_list=()
+  for _r in ${_dset_result}
+  do
+    _dset_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $2}'`'[ in '`echo ${_r} | tr '$' ' ' | awk '{print $1}'`']')
+  done
+  _values 'daemonset' ${_dset_list}
+}
+
+__kube_get_deployments(){
+  local -a _dp_result _dp_list
+  _dp_result=(`kubectl get deployments --all-namespaces | tail -n +2 | tr ' ' '$'`)
+  _dp_list=()
+  for _r in ${_dp_result}
+  do
+    _dp_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $2}'`'[ in '`echo ${_r} | tr '$' ' ' | awk '{print $1}'`']')
+  done
+  _values 'deployment' ${_dp_list}
+}
+
+__kube_get_ingresses(){
+  local -a _ing_result _ing_list
+  _ing_result=(`kubectl get ingresses --all-namespaces | tail -n +2 | tr ' ' '$'`)
+  _ing_list=()
+  for _r in ${_ing_result}
+  do
+    _ing_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $2}'`'[ in '`echo ${_r} | tr '$' ' ' | awk '{print $1}'`']')
+  done
+  _values 'ingress' ${_ing_list}
+}
+
+__kube_get_networkpolicies(){
+  local -a _nwp_result _nwp_list
+  _nwp_result=(`kubectl get networkpolicies --all-namespaces | tail -n +2 | tr ' ' '$'`)
+  _nwp_list=()
+  for _r in ${_nwp_result}
+  do
+    _nwp_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $2}'`'[ in '`echo ${_r} | tr '$' ' ' | awk '{print $1}'`']')
+  done
+  _values 'networkpolicie' ${_nwp_list}
+}
+
+__kube_get_clusterrolebindings(){
+  local -a _csb_list
+  _csb_list=(`kubectl get clusterrolebindings | tail -n +2 | awk '{print $1}' | tr ':' '\\\:'`)
+  _values 'clusterrolebinding' ${_csb_list[@]}
+}
+
+__kube_get_storageclasses(){
+  local -a _stc_result _stc_list
+  _stc_result=(`kubectl get storageclasses | tail -n +2 | tr ' ' '$'`)
+  _stc_list=()
+  for _r in ${_stc_result}
+  do
+    _stc_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'['`echo ${_r} | tr '$' ' ' | awk '{print $2}'`']')
+  done
+  _values 'storageclasses' ${_stc_list}
+}
+
 __hook_api_resources(){
-  local -a __hook_rs _hook_rs
   case $words[2] in
     bindings)
       #TODO
@@ -189,6 +272,51 @@ __hook_api_resources(){
     ;;
     serviceaccounts)
       __kube_get_serviceaccounts
+    ;;
+    services)
+      __kube_get_services
+    ;;
+    mutatingwebhookconfigurations)
+      #TODO
+    ;;
+    validatingwebhookconfigurations)
+      #TODO
+    ;;
+    customresourcedefinitions)
+      #TODO
+    ;;
+    apiservices)
+      __kube_get_apiservices
+    ;;
+    controllerrevisions)
+      __kube_get_controllerrevisions
+    ;;
+    daemonsets)
+      __kube_get_daemonsets
+    ;;
+    deployments)
+      __kube_get_deployments
+    ;;
+    ingresses)
+      __kube_get_ingresses
+    ;;
+    networkpolicies)
+      __kube_get_networkpolicies
+    ;;
+    podsecuritypolicies)
+      #TODO
+    ;;
+    clusterrolebindings)
+      #TODO
+    ;;
+    clusterroles)
+      #TODO
+    ;;
+    storageclasses)
+      __kube_get_storageclasses
+    ;;
+    volumeattachments)
+      #TODO
     ;;
   esac
 }
@@ -248,8 +376,68 @@ __hook_api_namespaces(){
       _hook_ns_result=(`kubectl get serviceaccounts --all-namespaces | tail -n +2 | tr ' ' '$'`)
       for _r in ${_hook_ns_result}
       do
-        _p=`echo ${_r} | tr '$' ' ' | awk '{print $2}'`
-        if [ ${_p} = $words[3] ];then
+        _s=`echo ${_r} | tr '$' ' ' | awk '{print $2}'`
+        if [ ${_s} = $words[3] ];then
+          __hook_ns=`echo ${_r} | tr '$' ' ' | awk '{print $1}'`
+        break
+        fi
+      done
+      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}'
+    ;;
+    services)
+      _hook_ns_result=(`kubectl get services --all-namespaces | tail -n +2 | tr ' ' '$'`)
+      for _r in ${_hook_ns_result}
+      do
+        _s=`echo ${_r} | tr '$' ' ' | awk '{print $2}'`
+        if [ ${_s} = $words[3] ];then
+          __hook_ns=`echo ${_r} | tr '$' ' ' | awk '{print $1}'`
+        break
+        fi
+      done
+      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}' 
+    ;;
+    controllerrevisions)
+      _hook_ns_result=(`kubectl get controllerrevisions --all-namespaces | tail -n +2 | tr ' ' '$'`)
+      for _r in ${_hook_ns_result}
+      do
+        _s=`echo ${_r} | tr '$' ' ' | awk '{print $2}'`
+        if [ ${_s} = $words[3] ];then
+          __hook_ns=`echo ${_r} | tr '$' ' ' | awk '{print $1}'`
+        break
+        fi
+      done
+      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}'  
+    ;;
+    daemonsets)
+      _hook_ns_result=(`kubectl get daemonsets --all-namespaces | tail -n +2 | tr ' ' '$'`)
+      for _r in ${_hook_ns_result}
+      do
+        _d=`echo ${_r} | tr '$' ' ' | awk '{print $2}'`
+        if [ ${_d} = $words[3] ];then
+          __hook_ns=`echo ${_r} | tr '$' ' ' | awk '{print $1}'`
+        break
+        fi
+      done
+      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}'
+    ;;
+    deployments)
+      _hook_ns_result=(`kubectl get deployments --all-namespaces | tail -n +2 | tr ' ' '$'`)
+      for _r in ${_hook_ns_result}
+      do
+        _d=`echo ${_r} | tr '$' ' ' | awk '{print $2}'`
+        if [ ${_d} = $words[3] ];then
+          __hook_ns=`echo ${_r} | tr '$' ' ' | awk '{print $1}'`
+        break
+        fi
+      done
+      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}'
+    ;;
+    ingresses)
+      _hook_ns_result=(`kubectl get ingresses --all-namespaces | tail -n +2 | tr ' ' '$'`)
+      for _r in ${_hook_ns_result}
+      do
+        _d=`echo ${_r} | tr '$' ' ' | awk '{print $2}'`
+        if [ ${_d} = $words[3] ];then
           __hook_ns=`echo ${_r} | tr '$' ' ' | awk '{print $1}'`
         break
         fi
@@ -300,7 +488,7 @@ __expose_cmd(){
   local -a _expose_cmds
   _expose_cmds=(
   'pod:expose pod:__kube_get_pods'
-  'service:expose service:__kube_get_service'
+  'service:expose service:__kube_get_services'
   'replicationcontroller'
   'deployment'
   'replicaset'
@@ -1034,3 +1222,4 @@ _kubectl(){
     ;;
   esac
 }
+
