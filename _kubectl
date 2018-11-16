@@ -1227,7 +1227,7 @@ _kubectl(){
             '--timeout[The length of time to wait before giving up on a delete, zero means determine a timeout from the size of the object]' \
             '--validate[If true, use a schema to validate the input before sending it]' \
             '--wait[If true, wait for resources to be gone before returning. This waits for finalizers.]' \
-            "*: :{_alternative ':apply_cmd:__apply_cmd' }" && ret=0
+            "1: :{_alternative ':apply_cmd:__apply_cmd' }" && ret=0
         ;;
 
         patch)
