@@ -246,8 +246,32 @@ __kube_get_networkpolicies(){
 __kube_get_clusterrolebindings(){
   local -a _csb_list
   integer ret=1
-  _csb_list=(`kubectl get clusterrolebindings | tail -n +2 | awk '{print $1}' | tr ':' '\\\:'`)
-  _values 'clusterrolebinding' ${_csb_list[@]} && ret=0
+  _csb_list=(`kubectl get clusterrolebindings | tail -n +2 | awk '{print $1}' `)
+  compadd ${_csb_list[@]} && ret=0
+  return ret
+}
+
+__kube_get_clusterroles(){
+  local -a _csr_list
+  integer ret=1
+  _csr_list=(`kubectl get clusterroles | tail -n +2 | awk '{print $1}' `)
+  compadd ${_csr_list[@]} && ret=0
+  return ret
+}
+
+__kube_get_rolebindings(){
+  local -a _rb_list
+  integer ret=1
+  _rb_list=(`kubectl get rolebindings --all-namespaces | tail -n +2 | awk '{print $2}' `)
+  compadd ${_rb_list[@]} && ret=0
+  return ret
+}
+
+__kube_get_roles(){
+  local -a _r_list
+  integer ret=1
+  _r_list=(`kubectl get roles --all-namespaces | tail -n +2 | awk '{print $2}' `)
+  compadd ${_r_list[@]} && ret=0
   return ret
 }
 
@@ -348,10 +372,16 @@ __hook_api_resources(){
       #TODO
     ;;
     clusterrolebindings)
-      #TODO
+      __kube_get_clusterrolebindings
     ;;
     clusterroles)
-      #TODO
+      __kube_get_clusterroles
+    ;;
+    rolebindings)
+      __kube_get_rolebindings
+    ;;
+    roles)
+      __kube_get_roles
     ;;
     storageclasses)
       __kube_get_storageclasses
@@ -476,6 +506,30 @@ __hook_api_namespaces(){
     ;;
     ingresses)
       _hook_ns_result=(`kubectl get ingresses --all-namespaces | tail -n +2 | tr ' ' '$'`)
+      for _r in ${_hook_ns_result}
+      do
+        _d=`echo ${_r} | tr '$' ' ' | awk '{print $2}'`
+        if [ ${_d} = $words[3] ];then
+          __hook_ns=`echo ${_r} | tr '$' ' ' | awk '{print $1}'`
+        break
+        fi
+      done
+      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}' && ret=0
+    ;;
+    rolebindings)
+      _hook_ns_result=(`kubectl get rolebindings --all-namespaces | tail -n +2 | tr ' ' '$'`)
+      for _r in ${_hook_ns_result}
+      do
+        _d=`echo ${_r} | tr '$' ' ' | awk '{print $2}'`
+        if [ ${_d} = $words[3] ];then
+          __hook_ns=`echo ${_r} | tr '$' ' ' | awk '{print $1}'`
+        break
+        fi
+      done
+      _values 'namespace' '--namespace:namespaces:{compadd $__hook_ns}' && ret=0
+    ;;
+    roles)
+      _hook_ns_result=(`kubectl get roles --all-namespaces | tail -n +2 | tr ' ' '$'`)
       for _r in ${_hook_ns_result}
       do
         _d=`echo ${_r} | tr '$' ' ' | awk '{print $2}'`
@@ -1317,4 +1371,3 @@ _kubectl(){
 
   return ret
 }
-
