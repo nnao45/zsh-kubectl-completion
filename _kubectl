@@ -4,7 +4,6 @@
 #   https://github.com/zsh-users/zsh-completions/blob/master/src/_golang
 #   https://github.com/felixr/docker-zsh-completion/blob/master/_docker
 #   https://github.com/git/git/blob/master/contrib/completion/git-completion.zsh
-
 __kube_get_pods(){
   local -a _pods_result _pods_list _cmd_result
   integer ret=1
@@ -755,19 +754,6 @@ __auth_cmd(){
   return ret
 }
 
-__apply_cmd(){
-  local -a _apply_cmds
-  integer ret=1
-  _apply_cmds=(
-  'edit-last-applied[Edit latest last-applied-configuration annotations of a resource/object]'
-  'set-last-applied[Set the last-applied-configuration annotation on a live object to match the contents of a file.]'
-  'view-last-applied[View latest last-applied-configuration annotations of a resource/object]'
-  )
-  _values 'apply command' $_apply_cmds[@] && ret=0
-
-  return ret
-}
-
 __completion_cmd(){
   local -a _completion_cmds
   integer ret=1
@@ -1279,7 +1265,7 @@ _kubectl(){
         ;;
 
         apply)
-          _arguments \
+          _values 'apply command' \
             ${_global_flags[@]} \
             '--all[Select all resources in the namespace of the specified resource types.]' \
             '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
@@ -1301,7 +1287,9 @@ _kubectl(){
             '--timeout[The length of time to wait before giving up on a delete, zero means determine a timeout from the size of the object]' \
             '--validate[If true, use a schema to validate the input before sending it]' \
             '--wait[If true, wait for resources to be gone before returning. This waits for finalizers.]' \
-            "1: :{_alternative ':apply_cmd:__apply_cmd' }" && ret=0
+            'edit-last-applied[Edit latest last-applied-configuration annotations of a resource/object]' \
+  'set-last-applied[Set the last-applied-configuration annotation on a live object to match the contents of a file.]' \
+  'view-last-applied[View latest last-applied-configuration annotations of a resource/object]' && ret=0
         ;;
 
         patch)
