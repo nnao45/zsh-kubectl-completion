@@ -1,7 +1,7 @@
 [![v0.1.0](https://img.shields.io/badge/version-v0.1.0-ff69b4.svg)](https://github.com/nnao45/pexpo/releases/tag/v0.1.0)
 
 # nnao45/zsh-kubectl-completions
-Rich completion for the `kubectl` command with zsh.
+Rich [zsh](http://zsh.org) completion for the [kubectl](https://kubernetes.io/docs/reference/kubectl) command.
 
 # Install
 
