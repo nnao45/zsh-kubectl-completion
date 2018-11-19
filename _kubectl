@@ -106,6 +106,148 @@ __kube_get_api_resources(){
   return ret
 }
 
+__kube_get_api_resources2name(){
+  local -a _api_result __pre_api_list _api_list _cmd_result
+  integer ret=1
+  _cmd_result=`kubectl api-resources 2>/dev/null`
+  _pre_api_list=()
+  _api_list=()
+  if [ ! -z ${_cmd_result} ]; then
+    _pre_api_list=(`echo ${_cmd_result} | tail -n +2 | awk '{print $1}'`)
+    #_values -S '/' 'api resource' 'aaa:aaa:__kube_get_nodes' 'nodes:aaa:__kube_get_nodes'  && ret=0
+  fi
+  for _a in ${_pre_api_list}
+  do
+    case ${_a} in
+    bindings)
+      #TODO
+    ;;
+    componentstatuses)
+      #__kube_get_componentstatuses
+      _api_list+=('componentstatuses:componentstatuses:__kube_get_componentstatuses')
+    ;;
+    configmaps)
+      #__kube_get_configmaps
+      _api_list+=('configmaps:configmaps:__kube_get_configmaps')
+    ;;
+    endpoints)
+      #__kube_get_endpoints
+      _api_list+=('endpoints:endpoints:__kube_get_endpoints')
+    ;;
+    events)
+      #__kube_get_events
+      _api_list+=('events:events:__kube_get_events')
+    ;;
+    limitranges)
+      #TODO
+    ;;
+    namespaces)
+      #__kube_get_namespaces
+      _api_list+=('namespaces:namespaces:__kube_get_namespaces')
+    ;;
+    nodes)
+      #__kube_get_nodes
+      _api_list+=('nodes:nodes:__kube_get_nodes')
+    ;;
+    persistentvolumeclaims)
+      #__kube_get_pvc
+      _api_list+=('persistentvolumeclaims:persistentvolumeclaims:__kube_get_pvc')
+    ;;
+    persistentvolumes)
+      #__kube_get_pv
+      _api_list+=('persistentvolumes:persistentvolumes:__kube_get_pv')
+    ;;
+    pods)
+      #__kube_get_pods
+      _api_list+=('pods:pods:__kube_get_pods')
+    ;;
+    podtemplates)
+      #TODO
+    ;;
+    replicationcontrollers)
+      #TODO
+    ;;
+    resourcequotas)
+      #TODO
+    ;;
+    secrets)
+      #__kube_get_secrets
+      _api_list+=('secrets:secrets:__kube_get_secrets')
+    ;;
+    serviceaccounts)
+      #__kube_get_serviceaccounts
+      _api_list+=('serviceaccounts:serviceaccounts:__kube_get_serviceaccounts')
+    ;;
+    services)
+      #__kube_get_services
+      _api_list+=('services:services:__kube_get_services')
+    ;;
+    mutatingwebhookconfigurations)
+      #TODO
+    ;;
+    validatingwebhookconfigurations)
+      #TODO
+    ;;
+    customresourcedefinitions)
+      #TODO
+    ;;
+    apiservices)
+      #__kube_get_apiservices
+      _api_list+=('apiservices:apiservices:__kube_get_apiservices')
+    ;;
+    controllerrevisions)
+      #__kube_get_controllerrevisions
+      _api_list+=('controllerrevisions:controllerrevisions:__kube_get_controllerrevisions')
+    ;;
+    daemonsets)
+      #__kube_get_daemonsets
+      _api_list+=('daemonsets:daemonsets:__kube_get_daemonsets')
+    ;;
+    deployments)
+      #__kube_get_deployments
+      _api_list+=('deployments:deployments:__kube_get_deployments')
+    ;;
+    ingresses)
+      #__kube_get_ingresses
+      _api_list+=('ingresses:ingresses:__kube_get_ingresses')
+    ;;
+    networkpolicies)
+      #__kube_get_networkpolicies
+      _api_list+=('networkpolicies:networkpolicies:__kube_get_networkpolicies')
+    ;;
+    podsecuritypolicies)
+      #TODO
+    ;;
+    clusterrolebindings)
+      #__kube_get_clusterrolebindings
+      _api_list+=('clusterrolebindings:clusterrolebindings:__kube_get_clusterrolebindings')
+    ;;
+    clusterroles)
+      #__kube_get_clusterroles
+      _api_list+=('clusterroles:clusterroles:__kube_get_clusterroles')
+    ;;
+    rolebindings)
+      #__kube_get_rolebindings
+      _api_list+=('rolebindings:rolebindings:__kube_get_rolebindings')
+    ;;
+    roles)
+      #__kube_get_roles
+      _api_list+=('roles:roles:__kube_get_roles')
+    ;;
+    storageclasses)
+      #__kube_get_storageclasses
+      _api_list+=('storageclasses:storageclasses:__kube_get_storageclasses')
+    ;;
+    volumeattachments)
+      #TODO
+    ;;
+  esac
+  done
+  _values -S '/' 'api resource' $_api_list && ret=0
+
+  return ret
+}
+
 __kube_get_endpoints(){
   local -a _ep_result _ep_list _cmd_result
   integer ret=1
@@ -466,6 +608,12 @@ __hook_api_resources(){
 __hook_api_namespaces(){
   local -a __hook_ns _hook_ns_result
   integer ret=1
+  if echo $words[2] | grep '/' > /dev/null 2>&1; then
+    _w2=`echo $words[2] | awk -F '/' '{print $1}'`
+    _w3=`echo $words[2] | awk -F '/' '{print $2}'`
+    words[2]=${_w2}
+    words[3]=${_w3}
+  fi
   case $words[2] in
     events)
       _hook_ns_result=(`kubectl get events --all-namespaces | tail -n +2 | tr ' ' '$'`)
@@ -1206,8 +1354,8 @@ _kubectl(){
             '--since-time[Only return logs after a specific date (RFC3339). Defaults to all logs. Only one of since-time / since may be used.]' \
             '--tail[Lines of recent log file to display. Defaults to -1 with no selector, showing all log lines otherwise 10, if a selector is provided.]' \
             '--timestamps[Include timestamps on each line in the log output]' \
-            "1: :{_alternative ':log_pods:__kube_get_pods' }" \
-            "2: :{_alternative ':namespace:__pod_hook_namespace' }" && ret=0
+            "1: :{_alternative ':get_resources:__kube_get_api_resources2name' }" \
+            "2: :{_alternative ':get_resources:__hook_api_namespaces'}" && ret=0
         ;;
 
         attach)
