@@ -10,6 +10,15 @@ Rich completion for the `kubectl` command with zsh.
 zplug "nnao45/zsh-kubectl-completion"
 ```
 
+## Prezto
+```bash
+curl -fLo ~/.zprezto/modules/completion/external/src/_kubectl \
+  https://raw.githubusercontent.com/nnao45/zsh-kubectl-completion/master/_kubectl 
+exec zsh
+```
+
 ## Manual
 ```bash
-$ wget -O /usr/local/share/zsh/site-functions/_kubectl https://raw.githubusercontent.com/nnao45/zsh-kubectl-completion/master/_kubectl 
+$ curl -fLo /usr/local/share/zsh/site-functions/_kubectl \ 
+  https://raw.githubusercontent.com/nnao45/zsh-kubectl-completion/master/_kubectl 
+```
