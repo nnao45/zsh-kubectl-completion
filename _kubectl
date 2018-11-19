@@ -255,13 +255,15 @@ __kube_get_deployments(){
   local -a _dp_result _dp_list _cmd_result
   integer ret=1
   _cmd_result=`kubectl get deployments --all-namespaces 2>/dev/null`
-  _dp_result=(`echo ${_cmd_result} | tail -n +2 | tr ' ' '$'`)
-  _dp_list=()
-  for _r in ${_dp_result}
-  do
-    _dp_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $2}'`'[ in '`echo ${_r} | tr '$' ' ' | awk '{print $1}'`']')
-  done
-  _values 'deployment' ${_dp_list} && ret=0
+  if [ ! -z ${_cmd_result} ]; then
+    _dp_result=(`echo ${_cmd_result} | tail -n +2 | tr ' ' '$'`)
+    _dp_list=()
+    for _r in ${_dp_result}
+    do
+      _dp_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $2}'`'[ in '`echo ${_r} | tr '$' ' ' | awk '{print $1}'`']')
+    done
+    _values 'deployment' ${_dp_list} && ret=0
+  fi
   return ret
 }
 
