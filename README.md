@@ -6,15 +6,16 @@ Rich completion for the `kubectl` command with zsh.
 # Install
 
 ## zplug
+write this in your `.zshrc`.
 ```bash
 zplug "nnao45/zsh-kubectl-completion"
 ```
 
 ## Prezto
 ```bash
-curl -fLo ~/.zprezto/modules/completion/external/src/_kubectl \
+$ curl -fLo ~/.zprezto/modules/completion/external/src/_kubectl \
   https://raw.githubusercontent.com/nnao45/zsh-kubectl-completion/master/_kubectl 
-exec zsh
+$ exec zsh
 ```
 
 ## Manual
