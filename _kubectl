@@ -4,6 +4,7 @@
 #   https://github.com/zsh-users/zsh-completions/blob/master/src/_golang
 #   https://github.com/felixr/docker-zsh-completion/blob/master/_docker
 #   https://github.com/git/git/blob/master/contrib/completion/git-completion.zsh
+
 __kube_get_pods(){
   local -a _pods_result _pods_list _cmd_result
   integer ret=1
@@ -16,6 +17,22 @@ __kube_get_pods(){
       _pods_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $2}'`'[ in '`echo ${_r} | tr '$' ' ' | awk '{print $1}'`' at '`echo ${_r} | tr '$' ' ' | awk '{print $8}'`']')
     done
     _values 'pod' ${_pods_list[@]} && ret=0
+  fi
+  return ret
+}
+
+__kube_get_api_replicationcontrollers(){
+  local -a _rc_result _rc_list _rc_result
+  integer ret=1
+  _cmd_result=`kubectl get replicationcontrollers -o wide 2>/dev/null`
+  if [ ! -z ${_cmd_result} ]; then
+    _rc_result=(`echo ${_cmd_result} | tail -n +2 | tr ' ' '$'`)
+    _rc_list=()
+    for _r in ${_rc_result}
+    do
+      _rc_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'[ image '`echo ${_r} | tr '$' ' ' | awk '{print $7}'`']')
+    done
+    _values replicationcontrollers ${_rc_list[@]} && ret=0
   fi
   return ret
 }
@@ -95,6 +112,17 @@ __kube_get_configmaps(){
   return ret
 }
 
+__kube_get_podsecuritypolicies(){
+  local -a _psp_list _cmd_result
+  integer ret=1
+  _cmd_result=`kubectl get podsecuritypolicies 2>/dev/null`
+  if [ ! -z ${_cmd_result} ]; then
+    _psp_list=(`echo ${_cmd_result} | tail -n +2 | awk '{print $1}'`)
+    _values 'podsecuritypolicies' ${_psp_list} && ret=0
+  fi
+  return ret
+}
+
 __kube_get_api_resources(){
   local -a _api_result _api_list _cmd_result
   integer ret=1
@@ -114,7 +142,6 @@ __kube_get_api_resources2name(){
   _api_list=()
   if [ ! -z ${_cmd_result} ]; then
     _pre_api_list=(`echo ${_cmd_result} | tail -n +2 | awk '{print $1}'`)
-    #_values -S '/' 'api resource' 'aaa:aaa:__kube_get_nodes' 'nodes:aaa:__kube_get_nodes'  && ret=0
   fi
   for _a in ${_pre_api_list}
   do
@@ -123,63 +150,51 @@ __kube_get_api_resources2name(){
       #TODO
     ;;
     componentstatuses)
-      #__kube_get_componentstatuses
       _api_list+=('componentstatuses:componentstatuses:__kube_get_componentstatuses')
     ;;
     configmaps)
-      #__kube_get_configmaps
       _api_list+=('configmaps:configmaps:__kube_get_configmaps')
     ;;
     endpoints)
-      #__kube_get_endpoints
       _api_list+=('endpoints:endpoints:__kube_get_endpoints')
     ;;
     events)
-      #__kube_get_events
       _api_list+=('events:events:__kube_get_events')
     ;;
     limitranges)
-      #TODO
+      _api_list+=('limitranges:limitranges:__kube_get_limitranges')
     ;;
     namespaces)
-      #__kube_get_namespaces
       _api_list+=('namespaces:namespaces:__kube_get_namespaces')
     ;;
     nodes)
-      #__kube_get_nodes
       _api_list+=('nodes:nodes:__kube_get_nodes')
     ;;
     persistentvolumeclaims)
-      #__kube_get_pvc
       _api_list+=('persistentvolumeclaims:persistentvolumeclaims:__kube_get_pvc')
     ;;
     persistentvolumes)
-      #__kube_get_pv
       _api_list+=('persistentvolumes:persistentvolumes:__kube_get_pv')
     ;;
     pods)
-      #__kube_get_pods
       _api_list+=('pods:pods:__kube_get_pods')
     ;;
     podtemplates)
       #TODO
     ;;
     replicationcontrollers)
-      #TODO
+      _api_list+=('replicationcontrollers:replicationcontrollers:__kube_get_replicationcontrollers')
     ;;
     resourcequotas)
-      #TODO
+      _api_list+=('resourcequotas:resourcequotas:__kube_get_resourcequotas')
     ;;
     secrets)
-      #__kube_get_secrets
       _api_list+=('secrets:secrets:__kube_get_secrets')
     ;;
     serviceaccounts)
-      #__kube_get_serviceaccounts
       _api_list+=('serviceaccounts:serviceaccounts:__kube_get_serviceaccounts')
     ;;
     services)
-      #__kube_get_services
       _api_list+=('services:services:__kube_get_services')
     ;;
     mutatingwebhookconfigurations)
@@ -189,53 +204,42 @@ __kube_get_api_resources2name(){
       #TODO
     ;;
     customresourcedefinitions)
-      #TODO
+      _api_list+=('customresourcedefinitions:customresourcedefinitions:__kube_get_customresourcedefinitions')
     ;;
     apiservices)
-      #__kube_get_apiservices
       _api_list+=('apiservices:apiservices:__kube_get_apiservices')
     ;;
     controllerrevisions)
-      #__kube_get_controllerrevisions
       _api_list+=('controllerrevisions:controllerrevisions:__kube_get_controllerrevisions')
     ;;
     daemonsets)
-      #__kube_get_daemonsets
       _api_list+=('daemonsets:daemonsets:__kube_get_daemonsets')
     ;;
     deployments)
-      #__kube_get_deployments
       _api_list+=('deployments:deployments:__kube_get_deployments')
     ;;
     ingresses)
-      #__kube_get_ingresses
       _api_list+=('ingresses:ingresses:__kube_get_ingresses')
     ;;
     networkpolicies)
-      #__kube_get_networkpolicies
       _api_list+=('networkpolicies:networkpolicies:__kube_get_networkpolicies')
     ;;
     podsecuritypolicies)
-      #TODO
+      _api_list+=('podsecuritypolicies:podsecuritypolicies:__kube_get_podsecuritypolicies')
     ;;
     clusterrolebindings)
-      #__kube_get_clusterrolebindings
       _api_list+=('clusterrolebindings:clusterrolebindings:__kube_get_clusterrolebindings')
     ;;
     clusterroles)
-      #__kube_get_clusterroles
       _api_list+=('clusterroles:clusterroles:__kube_get_clusterroles')
     ;;
     rolebindings)
-      #__kube_get_rolebindings
       _api_list+=('rolebindings:rolebindings:__kube_get_rolebindings')
     ;;
     roles)
-      #__kube_get_roles
       _api_list+=('roles:roles:__kube_get_roles')
     ;;
     storageclasses)
-      #__kube_get_storageclasses
       _api_list+=('storageclasses:storageclasses:__kube_get_storageclasses')
     ;;
     volumeattachments)
@@ -277,6 +281,54 @@ __kube_get_events(){
       _ev_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $5}'`'['`echo ${_r} | tr '$' ' ' | awk '{print $9}'`']')
     done
     _values 'event' ${_ev_list[@]} && ret=0
+  fi
+  return ret
+}
+
+__kube_get_limitranges(){
+  local -a _lm_result _lm_list _cmd_result
+  integer ret=1
+  _cmd_result=`kubectl get limitranges 2>/dev/null`
+  if [ ! -z ${_cmd_result} ]; then
+    _lm_result=(`echo ${_cmd_result} | tail -n +2 | tr ' ' '$'`)
+    _lm_list=()
+    for _r in ${_lm_result}
+    do
+      _lm_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'[ created_at '`echo ${_r} | tr '$' ' ' | awk '{print $2}'`']')
+    done
+    _values 'limitrange' ${_lm_list[@]} && ret=0
+  fi
+  return ret
+}
+
+__kube_get_resourcequotas(){
+  local -a _rq_result _rq_list _cmd_result
+  integer ret=1
+  _cmd_result=`kubectl get resourcequotas 2>/dev/null`
+  if [ ! -z ${_cmd_result} ]; then
+    _rq_result=(`echo ${_cmd_result} | tail -n +2 | tr ' ' '$'`)
+    _rq_list=()
+    for _r in ${_rq_result}
+    do
+      _rq_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'[ created_at '`echo ${_r} | tr '$' ' ' | awk '{print $2}'`']')
+    done
+    _values 'resourcequota' ${_rq_list[@]} && ret=0
+  fi
+  return ret
+}
+
+__kube_get_customresourcedefinitions(){
+  local -a _cd_result _cd_list _cmd_result
+  integer ret=1
+  _cd_result=`kubectl get customresourcedefinitions 2>/dev/null`
+  if [ ! -z ${_cmd_result} ]; then
+    _cd_result=(`echo ${_cmd_result} | tail -n +2 | tr ' ' '$'`)
+    _cd_list=()
+    for _r in ${_cd_result}
+    do
+      _cd_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'[ created_at '`echo ${_r} | tr '$' ' ' | awk '{print $2}'`']')
+    done
+    _values 'customresourcedefinitions' ${_rq_list[@]} && ret=0
   fi
   return ret
 }
@@ -520,7 +572,7 @@ __hook_api_resources(){
       __kube_get_events
     ;;
     limitranges)
-      #TODO
+      __kube_get_limitranges
     ;;
     namespaces)
       __kube_get_namespaces
@@ -541,10 +593,10 @@ __hook_api_resources(){
       #TODO
     ;;
     replicationcontrollers)
-      #TODO
+      __kube_get_api_replicationcontrollers
     ;;
     resourcequotas)
-      #TODO
+      __kube_get_resourcequotas
     ;;
     secrets)
       __kube_get_secrets
@@ -562,7 +614,7 @@ __hook_api_resources(){
       #TODO
     ;;
     customresourcedefinitions)
-      #TODO
+      __kube_get_customresourcedefinitions
     ;;
     apiservices)
       __kube_get_apiservices
@@ -583,7 +635,7 @@ __hook_api_resources(){
       __kube_get_networkpolicies
     ;;
     podsecuritypolicies)
-      #TODO
+      __kube_get_podsecuritypolicies
     ;;
     clusterrolebindings)
       __kube_get_clusterrolebindings
