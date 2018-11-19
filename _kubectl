@@ -243,6 +243,7 @@ __kube_get_api_resources2name(){
     ;;
   esac
   done
+  
   _values -S '/' 'api resource' $_api_list && ret=0
 
   return ret
@@ -815,10 +816,10 @@ __expose_cmd(){
   local -a _expose_cmds
   integer ret=1
   _expose_cmds=(
-  'pod:expose pod:__kube_get_pods'
-  'service:expose service:__kube_get_services'
+  'pod:pod:__kube_get_pods'
+  'service:service:__kube_get_services'
   'replicationcontroller'
-  'deployment'
+  'deployment:deployment:__kube_get_deployments'
   'replicaset'
   )
   _values 'expose command' $_expose_cmds[@] && ret=0
@@ -1200,9 +1201,8 @@ _kubectl(){
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
             '--validate[If true, use a schema to validate the input before sending it]' \
             '--windows-line-endings[Defaults to the line ending native to your platform.]' \
-            "1: :{_alternative ':get_resources:__kube_get_api_resources' }" \
-            "2: :{_alternative ':get_resources:__hook_api_resources'}" \
-            "3: :{_alternative ':get_resources:__hook_api_namespaces'}" && ret=0
+            "1: :{_alternative ':get_resources:__kube_get_api_resources2name' }" \
+            "2: :{_alternative ':get_resources:__hook_api_namespaces'}" && ret=0
         ;;
 
         delete)
@@ -1264,7 +1264,10 @@ _kubectl(){
             '--record[Record current kubectl command in the resource annotation. If set to false, do not record the command. If set to true, record the command. If not set, default to updating the existing annotation value only if one already exists.]' \
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
             '--save-config[If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.]' \
-            '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]'  && ret=0
+            '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
+            "1: :{_alternative ':get_resources:__kube_get_api_resources' }" \
+            "2: :{_alternative ':get_resources:__hook_api_resources'}" \
+            "3: :{_alternative ':get_resources:__hook_api_namespaces'}" && ret=0
         ;;
 
         certificate)
@@ -1383,7 +1386,9 @@ _kubectl(){
         port-forward)
           _arguments \
             ${_global_flags[@]} \
-            '--pod-running-timeout:[The length of time (like 5s, 2m, or 3h, higher than zero) to wait until at least one pod is running]'  && ret=0
+            '--pod-running-timeout:[The length of time (like 5s, 2m, or 3h, higher than zero) to wait until at least one pod is running]' \
+            "1: :{_alternative ':get_resources:__kube_get_api_resources2name' }" \
+            "2: :{_alternative ':get_resources:__hook_api_namespaces'}" && ret=0
         ;;
 
         proxy)
@@ -1485,6 +1490,8 @@ _kubectl(){
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
             '--timeout[The length of time to wait before giving up on a delete, zero means determine a timeout from the size of the object]' && ret=0
+            "1: :{_alternative ':get_resources:__kube_get_api_resources2name' }" \
+            "2: :{_alternative ':get_resources:__hook_api_namespaces'}" && ret=0
         ;;
         convert)
           _arguments \
@@ -1515,7 +1522,10 @@ _kubectl(){
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
             '--resource-version[If non-empty, the labels update will only succeed if this is the current resource-version for the object. Only valid when specifying a single resource.]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
-            '--template[Template string or path to template file to use when -o=go-template,-o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' && ret=0
+            '--template[Template string or path to template file to use when -o=go-template,-o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
+            "1: :{_alternative ':get_resources:__kube_get_api_resources' }" \
+            "2: :{_alternative ':get_resources:__hook_api_resources'}" \
+            "3: :{_alternative ':get_resources:__hook_api_namespaces'}" && ret=0
         ;;
         annotate)
           _arguments \
@@ -1535,6 +1545,9 @@ _kubectl(){
             '--resource-version[If non-empty, the labels update will only succeed if this is the current resource-version for the object. Only valid when specifying a single resource.]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--template[Template string or path to template file to use when -o=go-template,-o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' && ret=0
+            "1: :{_alternative ':get_resources:__kube_get_api_resources' }" \
+            "2: :{_alternative ':get_resources:__hook_api_resources'}" \
+            "3: :{_alternative ':get_resources:__hook_api_namespaces'}" && ret=0 
        ;;
        completion)
          _arguments \
