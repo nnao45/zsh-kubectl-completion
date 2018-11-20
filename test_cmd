@@ -1,3 +1,0 @@
-kubectl get pods --namespace kube-system -o wide
-kubectl get pods --namespace kube-system -o wide
-kubectl get pods --namespace kube-system -o wide
