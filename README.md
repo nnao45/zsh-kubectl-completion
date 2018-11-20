@@ -44,7 +44,7 @@ zstyle ':completion:*:*:kubectl:*' list-grouped false
 
 Show this😍
 ```bash
-$ k describe namespaces aaa                                                                      18-11-20 17:18:57
+$ kubectl describe namespaces aaa                                                                      18-11-20 17:18:57
 namespace
 aaa  -- Active
 bbb  -- Active
