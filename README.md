@@ -19,9 +19,11 @@ $ exec zsh
 ```
 
 ## Manual
+for example, you set `~/.zsh/completion`, 
 ```bash
-$ curl -fLo /usr/local/share/zsh/site-functions/_kubectl \ 
-  https://raw.githubusercontent.com/nnao45/zsh-kubectl-completion/master/_kubectl 
+$ curl -fLo ~/.zsh/completion_kubectl \ 
+  https://raw.githubusercontent.com/nnao45/zsh-kubectl-completion/master/_kubectl
+$ exec zsh
 ```
 
 ## And...
