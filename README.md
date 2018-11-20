@@ -25,7 +25,7 @@ $ curl -fLo /usr/local/share/zsh/site-functions/_kubectl \
 ```
 
 ## And...
-If you want to complete list is "non grouped", you set additional attr.
+If you want to complete list is "non grouped", you set additional attr.  
 (I don't like grouped complete list when same word comment.)
 
 By default,
