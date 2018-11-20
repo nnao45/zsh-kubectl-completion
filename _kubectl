@@ -5,6 +5,8 @@
 #   https://github.com/felixr/docker-zsh-completion/blob/master/_docker
 #   https://github.com/git/git/blob/master/contrib/completion/git-completion.zsh
 
+_filter_namespace=''
+
 __kube_get_pods(){
   local -a _pods_result _pods_list _cmd_result
   integer ret=1
@@ -50,6 +52,7 @@ __kube_get_namespaces(){
     done
     _values 'namespace' ${_ns_list[@]} && ret=0
   fi
+
   return ret
 }
 
@@ -1108,6 +1111,9 @@ _kubectl(){
 
   case $state in
     args)
+      if [ ! -z ${opt_args[--namespace]} ];then
+        echo ${opt_args[--namespace]}
+      fi
       case $words[1] in
         create)
           _arguments \
@@ -1601,7 +1607,7 @@ _kubectl(){
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
             '--resource-version[If non-empty, the labels update will only succeed if this is the current resource-version for the object. Only valid when specifying a single resource.]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
-            '--template[Template string or path to template file to use when -o=go-template,-o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' && ret=0
+            '--template[Template string or path to template file to use when -o=go-template,-o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
             "1: :{_alternative ':get_resources:__kube_get_api_resources' }" \
             "2: :{_alternative ':get_resources:__hook_api_resources'}" \
             "3: :{_alternative ':get_resources:__hook_api_namespaces'}" && ret=0 
