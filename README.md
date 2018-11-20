@@ -30,7 +30,7 @@ If you want to complete list is "non grouped", you set additional attr.
 
 By default,
 ```bash
-$ kubectl describe namespaces
+$ kubectl describe namespaces <TAB>
 namespace
 kkk  jjj  iii  hhh  ggg  fff  eee  ddd  ccc  bbb  aaa
 vvv  uuu  ttt  sss  rrr  qqq  ppp  ooo  nnn  mmm  lll
@@ -44,7 +44,7 @@ zstyle ':completion:*:*:kubectl:*' list-grouped false
 
 Show this😍
 ```bash
-$ kubectl describe namespaces aaa                                                                      18-11-20 17:18:57
+$ kubectl describe namespaces <TAB>
 namespace
 aaa  -- Active
 bbb  -- Active
