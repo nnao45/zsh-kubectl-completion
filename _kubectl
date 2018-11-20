@@ -5,18 +5,24 @@
 #   https://github.com/felixr/docker-zsh-completion/blob/master/_docker
 #   https://github.com/git/git/blob/master/contrib/completion/git-completion.zsh
 
-_filter_namespace=''
+__parse_kube_get(){
+  local -a _ns
+  if [ ! -z ${_filter_namespace} ];then
+    _ns="--namespace ${_filter_namespace}"
+  fi
+  eval kubectl get ${1} ${_ns} -o wide
+}
 
 __kube_get_pods(){
   local -a _pods_result _pods_list _cmd_result
   integer ret=1
-  _cmd_result=`kubectl get pods --all-namespaces -o wide 2>/dev/null`
+  _cmd_result=$(__parse_kube_get pods)
   if [ ! -z ${_cmd_result} ]; then
     _pods_result=(`echo ${_cmd_result} | tail -n +2 | tr ' ' '$'`)
     _pods_list=()
     for _r in ${_pods_result}
     do
-      _pods_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $2}'`'[ in '`echo ${_r} | tr '$' ' ' | awk '{print $1}'`' at '`echo ${_r} | tr '$' ' ' | awk '{print $8}'`']')
+      _pods_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'[ in '`echo ${_r} | tr '$' ' ' | awk '{print $7}'`']')
     done
     _values 'pod' ${_pods_list[@]} && ret=0
   fi
@@ -1111,8 +1117,8 @@ _kubectl(){
 
   case $state in
     args)
-      if [ ! -z ${opt_args[--namespace]} ];then
-        echo ${opt_args[--namespace]}
+      if [ ! -z ${opt_args[--namespace]} ]; then
+        _filter_namespace=${opt_args[--namespace]}
       fi
       case $words[1] in
         create)
