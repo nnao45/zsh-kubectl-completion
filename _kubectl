@@ -409,7 +409,7 @@ __kube_get_contexts(){
   __kube_get_exec 'contexts' __kube_get_contexts_comment
 }
 
-_hook_api_resources(){
+__hook_api_resources(){
   case $words[2] in
     bindings)
       #TODO
