@@ -6,205 +6,195 @@
 #   https://github.com/git/git/blob/master/contrib/completion/git-completion.zsh
 
 __parse_kube_get(){
-  local -a _ns
+  local -a _ns _cl _ur _cx _sv
   if [ ! -z ${_filter_namespace} ];then
     _ns="--namespace ${_filter_namespace}"
   fi
-  eval kubectl get ${1} ${_ns} -o wide
+  if [ ! -z ${_filter_cluster} ];then
+    _cl="--cluster ${_filter_cluster}"
+  fi
+  if [ ! -z ${_filter_user} ];then
+    _ur="--user ${_filter_user}"
+  fi
+  if [ ! -z ${_filter_context} ];then
+    _cx="--context ${_filter_context}"
+  fi
+  if [ ! -z ${_filter_server} ];then
+    _sv="--server ${_filter_server}"
+  fi
+
+  if [ ${1} = 'api-resources' ]; then
+    eval kubectl ${1} ${_ns} ${_cl} ${_ur} ${_cx} ${sv} -o wide 2>/dev/null
+  else
+    eval kubectl get ${1} ${_ns} ${_cl} ${_ur} ${_cx} ${sv} -o wide 2>/dev/null
+  fi
+}
+
+__parse_cmd_result(){
+  echo ${1} | tail -n +2 | tr ' ' '$'
+}
+
+__parse_cmd_result_withoutcomment(){
+  echo ${1} | tail -n +2 | awk '{print $1}'
+}
+
+__parse_print2list(){
+  echo ${1} | tr '$' ' ' | awk '{print $'${2}'}'
+}
+
+__kube_get_exec(){
+  local -a _parse_result _parse_list _cmd_result
+  integer ret=1
+  _cmd_result=$(__parse_kube_get ${1})
+  if [ ! -z ${_cmd_result} ]; then
+    _parse_result=($(__parse_cmd_result ${_cmd_result}))
+    _parse_list=()
+    for _r in ${_parse_result}
+    do
+      _parse_list+=("$(${2} ${_r})")
+    done
+    _values "${1}" ${_parse_list[@]} && ret=0
+  fi
+  return ret
+}
+
+__kube_get_exec_nocomment(){
+  local -a _parse_list _cmd_result
+  integer ret=1
+  _cmd_result=$(__parse_kube_get ${1})
+  if [ ! -z ${_cmd_result} ]; then
+    _parse_list=($(__parse_cmd_result_withoutcomment ${_cmd_result}))
+    _values "${1}" ${_parse_list[@]} && ret=0
+  fi
+  return ret
+}
+
+__kube_get_pods_comment(){
+  echo -n $(__parse_print2list ${1} 1)'[node: '$(__parse_print2list ${1} 7)']'
 }
 
 __kube_get_pods(){
-  local -a _pods_result _pods_list _cmd_result
-  integer ret=1
-  _cmd_result=$(__parse_kube_get pods)
-  if [ ! -z ${_cmd_result} ]; then
-    _pods_result=(`echo ${_cmd_result} | tail -n +2 | tr ' ' '$'`)
-    _pods_list=()
-    for _r in ${_pods_result}
-    do
-      _pods_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'[ in '`echo ${_r} | tr '$' ' ' | awk '{print $7}'`']')
-    done
-    _values 'pod' ${_pods_list[@]} && ret=0
-  fi
-  return ret
+  __kube_get_exec 'pods' __kube_get_pods_comment
+}
+
+__kube_get_replicationcontrollers_comment(){
+  echo -n $(__parse_print2list ${1} 1)'[image: '$(__parse_print2list ${1} 7)']'
 }
 
 __kube_get_api_replicationcontrollers(){
-  local -a _rc_result _rc_list _rc_result
-  integer ret=1
-  _cmd_result=`kubectl get replicationcontrollers -o wide 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _rc_result=(`echo ${_cmd_result} | tail -n +2 | tr ' ' '$'`)
-    _rc_list=()
-    for _r in ${_rc_result}
-    do
-      _rc_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'[ image '`echo ${_r} | tr '$' ' ' | awk '{print $7}'`']')
-    done
-    _values replicationcontrollers ${_rc_list[@]} && ret=0
-  fi
-  return ret
+  __kube_get_exec 'replicationcontrollers' __kube_get_replicationcontrollers_comment
+}
+
+__kube_get_namespaces_comment(){
+  echo -n $(__parse_print2list ${1} 1)'['$(__parse_print2list ${1} 2)']'
 }
 
 __kube_get_namespaces(){
-  local -a _ns_result_ns_list _cmd_result
-  integer ret=1
-  _cmd_result=`kubectl get namespace 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _ns_result=(`echo ${_cmd_result} | tail -n +2 | tr ' ' '$'`)
-    _ns_list=()
-    for _r in ${_ns_result}
-    do
-      _ns_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'['`echo ${_r} | tr '$' ' ' | awk '{print $2}'`']')
-    done
-    _values 'namespace' ${_ns_list[@]} && ret=0
-  fi
+  __kube_get_exec 'namespaces' __kube_get_namespaces_comment
+}
 
-  return ret
+__kube_get_nodes_comment(){
+  echo -n $(__parse_print2list ${1} 1)'[status: '$(__parse_print2list ${1} 2)' role: '$(__parse_print2list ${1} 3)']' 
 }
 
 __kube_get_nodes(){
-  local -a _nodes_result _nodes_list _cmd_result
-  integer ret=1
-  _cmd_result=`kubectl get node 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _nodes_result=(`echo ${_cmd_result} | tail -n +2 | tr ' ' '$'`)
-    _nodes_list=()
-    for _r in ${_nodes_result}
-    do
-      _nodes_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'['`echo ${_r} | tr '$' ' ' | awk '{print $2}'`' as '`echo ${_r} | tr '$' ' ' | awk '{print $3}'`']')
-    done
-    _values 'node' ${_nodes_list[@]} && ret=0
-  fi
-  return ret
+  __kube_get_exec 'nodes' __kube_get_nodes_comment
+}
+
+__kube_get_services_comment(){
+  echo -n $(__parse_print2list ${1} 1)'[type: '$(__parse_print2list ${1} 2)' listen: '$(__parse_print2list ${1} 5)']'
 }
 
 __kube_get_services(){
-  local -a _svc_result _svc_list _cmd_result
-  integer ret=1
-  _cmd_result=`kubectl get services 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _svc_result=(`echo ${_cmd_result} | tail -n +2 | tr ' ' '$'`)
-    _svc_list=()
-    for _r in ${_svc_result}
-    do
-      _svc_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'[type: '`echo ${_r} | tr '$' ' ' | awk '{print $2}'`' listen '`echo ${_r} | tr '$' ' ' | awk '{print $5}'`']')
-    done
-    _values 'service' ${_svc_list[@]} && ret=0
-  fi
-  return ret
+  __kube_get_exec 'services' __kube_get_services_comment
+}
+
+__kube_get_componentstatuses_comment(){
+  echo -n $(__parse_print2list ${1} 1)'['$(__parse_print2list ${1} 2)']' 
 }
 
 __kube_get_componentstatuses(){
-  local -a _cps_result _cps_list _cmd_result
-  integer ret=1
-  _cmd_result=`kubectl get componentstatuses 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _cps_result=(`echo ${_cmd_result} | tail -n +2 | tr ' ' '$'`)
-    _cps_list=()
-    for _r in ${_cps_result}
-    do
-      _cps_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'['`echo ${_r} | tr '$' ' ' | awk '{print $2}'`']')
-    done
-    _values 'component statuses' ${_cps_list[@]} && ret=0
-  fi
-  return ret
+  __kube_get_exec 'componentstatuses' __kube_get_componentstatuses_comment
+}
+
+__kube_get_configmaps_comment(){
+  echo -n $(__parse_print2list ${1} 1)
 }
 
 __kube_get_configmaps(){
-  local -a _configmap_list _cmd_result
-  integer ret=1
-  _cmd_result=`kubectl get configmap 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _confimap_list=(`echo ${_cmd_result} | tail -n +2 | awk '{print $1}'`)
-    _values 'configmap' ${_configmap_list} && ret=0
-  fi
-  return ret
+  __kube_get_exec_nocomment 'configmaps'
 }
 
 __kube_get_podsecuritypolicies(){
-  local -a _psp_list _cmd_result
-  integer ret=1
-  _cmd_result=`kubectl get podsecuritypolicies 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _psp_list=(`echo ${_cmd_result} | tail -n +2 | awk '{print $1}'`)
-    _values 'podsecuritypolicies' ${_psp_list} && ret=0
-  fi
-  return ret
+  __kube_get_exec_nocomment 'podsecuritypolicies'
 }
 
 __kube_get_api_resources(){
-  local -a _api_result _api_list _cmd_result
-  integer ret=1
-  _cmd_result=`kubectl api-resources 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _api_list=(`echo ${_cmd_result} | tail -n +2 | awk '{print $1}'`)
-    _values 'api resource' ${_api_list[@]} && ret=0
-  fi
-  return ret
+  __kube_get_exec_nocomment 'api-resources'
 }
 
 __kube_get_api_resources2name(){
-  local -a _api_result __pre_api_list _api_list _cmd_result
+  local -a _parse_result __pre_parse_list _parse_list _cmd_result
   integer ret=1
-  _cmd_result=`kubectl api-resources 2>/dev/null`
-  _pre_api_list=()
-  _api_list=()
+  _cmd_result=$(__parse_kube_get api-resources)
+  _pre_parse_list=()
+  _parse_list=()
   if [ ! -z ${_cmd_result} ]; then
-    _pre_api_list=(`echo ${_cmd_result} | tail -n +2 | awk '{print $1}'`)
+    _pre_parse_list=($(__parse_cmd_result_withoutcomment ${_cmd_result}))
   fi
-  for _a in ${_pre_api_list}
+  for _a in ${_pre_parse_list}
   do
     case ${_a} in
     bindings)
       #TODO
     ;;
     componentstatuses)
-      _api_list+=('componentstatuses:componentstatuses:__kube_get_componentstatuses')
+      _parse_list+=('componentstatuses:componentstatuses:__kube_get_componentstatuses')
     ;;
     configmaps)
-      _api_list+=('configmaps:configmaps:__kube_get_configmaps')
+      _parse_list+=('configmaps:configmaps:__kube_get_configmaps')
     ;;
     endpoints)
-      _api_list+=('endpoints:endpoints:__kube_get_endpoints')
+      _parse_list+=('endpoints:endpoints:__kube_get_endpoints')
     ;;
     events)
-      _api_list+=('events:events:__kube_get_events')
+      _parse_list+=('events:events:__kube_get_events')
     ;;
     limitranges)
-      _api_list+=('limitranges:limitranges:__kube_get_limitranges')
+      _parse_list+=('limitranges:limitranges:__kube_get_limitranges')
     ;;
     namespaces)
-      _api_list+=('namespaces:namespaces:__kube_get_namespaces')
+      _parse_list+=('namespaces:namespaces:__kube_get_namespaces')
     ;;
     nodes)
-      _api_list+=('nodes:nodes:__kube_get_nodes')
+      _parse_list+=('nodes:nodes:__kube_get_nodes')
     ;;
     persistentvolumeclaims)
-      _api_list+=('persistentvolumeclaims:persistentvolumeclaims:__kube_get_pvc')
+      _parse_list+=('persistentvolumeclaims:persistentvolumeclaims:__kube_get_pvc')
     ;;
     persistentvolumes)
-      _api_list+=('persistentvolumes:persistentvolumes:__kube_get_pv')
+      _parse_list+=('persistentvolumes:persistentvolumes:__kube_get_pv')
     ;;
     pods)
-      _api_list+=('pods:pods:__kube_get_pods')
+      _parse_list+=('pods:pods:__kube_get_pods')
     ;;
     podtemplates)
       #TODO
     ;;
     replicationcontrollers)
-      _api_list+=('replicationcontrollers:replicationcontrollers:__kube_get_replicationcontrollers')
+      _parse_list+=('replicationcontrollers:replicationcontrollers:__kube_get_replicationcontrollers')
     ;;
     resourcequotas)
-      _api_list+=('resourcequotas:resourcequotas:__kube_get_resourcequotas')
+      _parse_list+=('resourcequotas:resourcequotas:__kube_get_resourcequotas')
     ;;
     secrets)
-      _api_list+=('secrets:secrets:__kube_get_secrets')
+      _parse_list+=('secrets:secrets:__kube_get_secrets')
     ;;
     serviceaccounts)
-      _api_list+=('serviceaccounts:serviceaccounts:__kube_get_serviceaccounts')
+      _parse_list+=('serviceaccounts:serviceaccounts:__kube_get_serviceaccounts')
     ;;
     services)
-      _api_list+=('services:services:__kube_get_services')
+      _parse_list+=('services:services:__kube_get_services')
     ;;
     mutatingwebhookconfigurations)
       #TODO
@@ -213,43 +203,43 @@ __kube_get_api_resources2name(){
       #TODO
     ;;
     customresourcedefinitions)
-      _api_list+=('customresourcedefinitions:customresourcedefinitions:__kube_get_customresourcedefinitions')
+      _parse_list+=('customresourcedefinitions:customresourcedefinitions:__kube_get_customresourcedefinitions')
     ;;
     apiservices)
-      _api_list+=('apiservices:apiservices:__kube_get_apiservices')
+      _parse_list+=('apiservices:apiservices:__kube_get_apiservices')
     ;;
     controllerrevisions)
-      _api_list+=('controllerrevisions:controllerrevisions:__kube_get_controllerrevisions')
+      _parse_list+=('controllerrevisions:controllerrevisions:__kube_get_controllerrevisions')
     ;;
     daemonsets)
-      _api_list+=('daemonsets:daemonsets:__kube_get_daemonsets')
+      _parse_list+=('daemonsets:daemonsets:__kube_get_daemonsets')
     ;;
     deployments)
-      _api_list+=('deployments:deployments:__kube_get_deployments')
+      _parse_list+=('deployments:deployments:__kube_get_deployments')
     ;;
     ingresses)
-      _api_list+=('ingresses:ingresses:__kube_get_ingresses')
+      _parse_list+=('ingresses:ingresses:__kube_get_ingresses')
     ;;
     networkpolicies)
-      _api_list+=('networkpolicies:networkpolicies:__kube_get_networkpolicies')
+      _parse_list+=('networkpolicies:networkpolicies:__kube_get_networkpolicies')
     ;;
     podsecuritypolicies)
-      _api_list+=('podsecuritypolicies:podsecuritypolicies:__kube_get_podsecuritypolicies')
+      _parse_list+=('podsecuritypolicies:podsecuritypolicies:__kube_get_podsecuritypolicies')
     ;;
     clusterrolebindings)
-      _api_list+=('clusterrolebindings:clusterrolebindings:__kube_get_clusterrolebindings')
+      _parse_list+=('clusterrolebindings:clusterrolebindings:__kube_get_clusterrolebindings')
     ;;
     clusterroles)
-      _api_list+=('clusterroles:clusterroles:__kube_get_clusterroles')
+      _parse_list+=('clusterroles:clusterroles:__kube_get_clusterroles')
     ;;
     rolebindings)
-      _api_list+=('rolebindings:rolebindings:__kube_get_rolebindings')
+      _parse_list+=('rolebindings:rolebindings:__kube_get_rolebindings')
     ;;
     roles)
-      _api_list+=('roles:roles:__kube_get_roles')
+      _parse_list+=('roles:roles:__kube_get_roles')
     ;;
     storageclasses)
-      _api_list+=('storageclasses:storageclasses:__kube_get_storageclasses')
+      _parse_list+=('storageclasses:storageclasses:__kube_get_storageclasses')
     ;;
     volumeattachments)
       #TODO
@@ -257,310 +247,150 @@ __kube_get_api_resources2name(){
   esac
   done
   
-  _values -S '/' 'api resource' $_api_list && ret=0
+  _values -S '/' 'api resource' $_parse_list && ret=0
 
   return ret
+}
+
+__kube_get_endpoints_comment(){
+  echo -n $(__parse_print2list ${1} 1)'[listen: '$(__parse_print2list ${1} 2)']'
 }
 
 __kube_get_endpoints(){
-  local -a _ep_result _ep_list _cmd_result
-  integer ret=1
-  _cmd_result=`kubectl get endpoint 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _ep_result=(`echo ${_cmd_result} | tail -n +2 | tr ' ' '$'`)
-    _ep_list=()
-    for _r in ${_ep_result}
-    do
-      _ep_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'[listen '`echo ${_r} | tr '$' ' ' | awk '{print $2}'`']')
-    done
-    _values 'endpoint' ${_ep_list[@]} && ret=0
-  fi
-  return ret
+  __kube_get_exec 'endpoints' __kube_get_endpoints_comment
+}
+
+__kube_get_events_comment(){
+  echo -n $(__parse_print2list ${1} 4)'[reasen: '$(__parse_print2list ${1} 7)']'
 }
 
 __kube_get_events(){
-  local -a _ev_result _ev_list _cmd_result
-  integer ret=1
-  _cmd_result=`kubectl get events --all-namespaces 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _ev_result=(`echo ${_cmd_result} | tail -n +2 | tr ' ' '$'`)
-    _ev_list=()
-    for _r in ${_ev_result}
-    do
-      _ev_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $5}'`'['`echo ${_r} | tr '$' ' ' | awk '{print $9}'`']')
-    done
-    _values 'event' ${_ev_list[@]} && ret=0
-  fi
-  return ret
+  __kube_get_exec 'events' __kube_get_events_comment
+}
+
+__kube_get_limitranges_comment(){
+  echo -n $(__parse_print2list ${1} 1)'[created_at: '$(__parse_print2list ${1} 2)']'
 }
 
 __kube_get_limitranges(){
-  local -a _lm_result _lm_list _cmd_result
-  integer ret=1
-  _cmd_result=`kubectl get limitranges 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _lm_result=(`echo ${_cmd_result} | tail -n +2 | tr ' ' '$'`)
-    _lm_list=()
-    for _r in ${_lm_result}
-    do
-      _lm_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'[ created_at '`echo ${_r} | tr '$' ' ' | awk '{print $2}'`']')
-    done
-    _values 'limitrange' ${_lm_list[@]} && ret=0
-  fi
-  return ret
+  __kube_get_exec 'limitranges' __kube_get_limitranges_comment
+}
+
+__kube_get_resourcequotas_comment(){
+  echo -n $(__parse_print2list ${1} 1)'[created_at: '$(__parse_print2list ${1} 2)']'
 }
 
 __kube_get_resourcequotas(){
-  local -a _rq_result _rq_list _cmd_result
-  integer ret=1
-  _cmd_result=`kubectl get resourcequotas 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _rq_result=(`echo ${_cmd_result} | tail -n +2 | tr ' ' '$'`)
-    _rq_list=()
-    for _r in ${_rq_result}
-    do
-      _rq_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'[ created_at '`echo ${_r} | tr '$' ' ' | awk '{print $2}'`']')
-    done
-    _values 'resourcequota' ${_rq_list[@]} && ret=0
-  fi
-  return ret
+  __kube_get_exec 'resourcequotas' __kube_get_resourcequotas_comment
+}
+
+__kube_get_customresourcedefinitions_comment(){
+  echo -n $(__parse_print2list ${1} 1)'[created_at: '$(__parse_print2list ${1} 2)']'
 }
 
 __kube_get_customresourcedefinitions(){
-  local -a _cd_result _cd_list _cmd_result
-  integer ret=1
-  _cd_result=`kubectl get customresourcedefinitions 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _cd_result=(`echo ${_cmd_result} | tail -n +2 | tr ' ' '$'`)
-    _cd_list=()
-    for _r in ${_cd_result}
-    do
-      _cd_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'[ created_at '`echo ${_r} | tr '$' ' ' | awk '{print $2}'`']')
-    done
-    _values 'customresourcedefinitions' ${_rq_list[@]} && ret=0
-  fi
-  return ret
+  __kube_get_exec 'customresourcedefinitions' __kube_get_customresourcedefinitions_comment
 }
 
-__kube_get_pvc(){
-  local -a _pvc_result _pvc_list _cmd_result
-  integer ret=1
-  _cmd_result=`kubectl get persistentvolumeclaims --all-namespaces 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _pvc_result=(`echo ${_cmd_result} | tail -n +2 | tr ' ' '$'`)
-    _pvc_list=()
-    for _r in ${_pvc_result}
-    do
-      _pvc_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $2}'`'[volume '`echo ${_r} | tr '$' ' ' | awk '{print $4}'`' in '`echo ${_r} | tr '$' ' ' | awk '{print $1}'`']')
-    done
-    _values 'persistentvolumeclaim' ${_pvc_list[@]} && ret=0
-  fi
-  return ret
+__kube_get_persistentvolumeclaims_comment(){
+  echo -n $(__parse_print2list ${1} 1)'[volume: '$(__parse_print2list ${1} 4)' storageclass: '$(__parse_print2list ${1} 6)']'
 }
 
-__kube_get_pv(){
-  local -a _pv_result _pv_list _cmd_result
-  integer ret=1
-  _cmd_result=`kubectl get persistentvolumes --all-namespaces 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _pv_result=(`echo ${_cmd_result}| tail -n +2 | tr ' ' '$'`)
-    _pv_list=()
-    for _r in ${_pv_result}
-    do
-      _pv_claim=`echo ${_r} | tr '$' ' ' | awk '{print $6}'`
-      _pv_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'[claim '`echo ${_pv_claim} | awk -F '/' '{print $2}'`' in '`echo ${_pv_claim} | awk -F '/' '{print $1}'`']')
-    done
-    _values 'persistentvolume' ${_pv_list[@]} && ret=0
-  fi
-  return ret
+__kube_get_persistentvolumeclaims(){
+  __kube_get_exec 'persistentvolumeclaims' __kube_get_persistentvolumeclaims_comment
+}
+
+__kube_get_persistentvolumes_comment(){
+  _pv_claim=$(echo ${1} | tr '$' ' ' | awk '{print $6}')
+  echo -n $(__parse_print2list ${1} 1)'[claim: '$(echo ${_pv_claim} | awk -F '/' '{print $2}')' storageclass: '$(__parse_print2list ${1} 7)']' 
+}
+
+__kube_get_persistentvolumes(){
+  __kube_get_exec 'persistentvolumes' __kube_get_persistentvolumes_comment
+}
+
+__kube_get_secrets_comment(){
+  echo -n $(__parse_print2list ${1} 1)'['$(__parse_print2list ${1} 2)']'
 }
 
 __kube_get_secrets(){
-  local -a _sc_result _sc_list _cmd_result
-  integer ret=1
-  _cmd_result=`kubectl get secrets 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _sc_result=(`echo ${_cmd_result} | tail -n +2 | tr ' ' '$'`)
-    _sc_list=()
-    for _r in ${_sc_result}
-    do
-      _sc_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'['`echo ${_r} | tr '$' ' ' | awk '{print $2}'`']')
-    done
-    _values 'secret' ${_sc_list} && ret=0
-  fi
-  return ret
+  __kube_get_exec 'secrets' __kube_get_secrets_comment
 }
 
 __kube_get_serviceaccounts(){
-  local -a _svca_result _svca_list _cmd_result
-  integer ret=1
-  _cmd_result=`kubectl get serviceaccounts --all-namespaces 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _svca_result=(`echo ${_cmd_result}| tail -n +2 | tr ' ' '$'`)
-    _svca_list=()
-    for _r in ${_svca_result}
-    do
-      _svca_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $2}'`'[ in '`echo ${_r} | tr '$' ' ' | awk '{print $1}'`']')
-    done
-    _values 'serviceaccount' ${_svca_list} && ret=0
-  fi
-  return ret
+  __kube_get_exec_nocomment 'serviceaccounts'
+}
+
+__kube_get_apiservices_comment(){
+  echo -n $(__parse_print2list ${_r} 1)'[created_at: '$(__parse_print2list ${_r} 2)']'
 }
 
 __kube_get_apiservices(){
-  local -a _asvc_result _asvc_list _cmd_result
-  integer ret=1
-  _cmd_result=`kubectl get apiservices 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _asvc_result=(`echo ${_cmd_result} | tail -n +2 | tr ' ' '$'`)
-    _asvc_list=()
-    for _r in ${_asvc_result}
-    do
-      _asvc_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'[ created_at '`echo ${_r} | tr '$' ' ' | awk '{print $2}'`']')
-    done
-    _values 'apiservice' ${_asvc_list} && ret=0
-  fi
-  return ret
+  __kube_get_exec_nocomment 'apiservices'
+}
+
+__kube_get_controllerrevisions_comment(){
+  echo -n $(__parse_print2list ${_r} 1)'['$(__parse_print2list ${_r} 2)']'
 }
 
 __kube_get_controllerrevisions(){
-  local -a _ctlv_result _ctlv_list _cmd_result
-  integer ret=1
-  _cmd_result=`kubectl get controllerrevisions --all-namespaces 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _ctlv_result=(`echo ${_cmd_result} | tail -n +2 | tr ' ' '$'`)
-    _ctlv_list=()
-    for _r in ${_ctlv_result}
-    do
-      _ctlv_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $2}'`'['`echo ${_r} | tr '$' ' ' | awk '{print $3}'`' in '`echo ${_r} | tr '$' ' ' | awk '{print $1}'`']')
-    done
-    _values 'controllerservice' ${_ctlv_list} && ret=0
-  fi
-  return ret
+  __kube_get_exec 'controllerrevisions' __kube_get_controllerrevisions_comment
+}
+
+__kube_get_daemonsets_comment(){
+  echo -n $(__parse_print2list ${_r} 1)'[desired: '$(__parse_print2list ${_r} 2)' current: '$(__parse_print2list ${_r} 3)' ready: '$(__parse_print2list ${_r} 4)' up-to-date: '$(__parse_print2list ${_r} 5)' available: '$(__parse_print2list ${_r} 6)']' 
 }
 
 __kube_get_daemonsets(){
-  local -a _dset_result _dset_list _cmd_result
-  integer ret=1
-  _cmd_result=`kubectl get daemonsets --all-namespaces 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _dset_result=(`echo ${_cmd_result} | tail -n +2 | tr ' ' '$'`)
-    _dset_list=()
-    for _r in ${_dset_result}
-    do
-      _dset_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $2}'`'[ in '`echo ${_r} | tr '$' ' ' | awk '{print $1}'`']')
-    done
-    _values 'daemonset' ${_dset_list} && ret=0
-  fi
-  return ret
+  __kube_get_exec 'daemonsets' __kube_get_daemonsets_comment
+}
+
+__kube_get_deployments_comment(){
+  echo -n $(__parse_print2list ${_r} 1)'[desired: '$(__parse_print2list ${_r} 2)' current: '$(__parse_print2list ${_r} 3)' up-to-date: '$(__parse_print2list ${_r} 4)' available: '$(__parse_print2list ${_r} 5)']' 
 }
 
 __kube_get_deployments(){
-  local -a _dp_result _dp_list _cmd_result
-  integer ret=1
-  _cmd_result=`kubectl get deployments --all-namespaces 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _dp_result=(`echo ${_cmd_result} | tail -n +2 | tr ' ' '$'`)
-    _dp_list=()
-    for _r in ${_dp_result}
-    do
-      _dp_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $2}'`'[ in '`echo ${_r} | tr '$' ' ' | awk '{print $1}'`']')
-    done
-    _values 'deployment' ${_dp_list} && ret=0
-  fi
-  return ret
+  __kube_get_exec 'deployments' __kube_get_deployments_comment
+}
+
+__kube_get_ingresses_comment(){
+  echo -n $(__parse_print2list ${_r} 1)'[hosts: '$(__parse_print2list ${_r} 2)' lieten '$(__parse_print2list ${_r} 3)':'$(__parse_print2list ${_r} 4)']'
 }
 
 __kube_get_ingresses(){
-  local -a _ing_result _ing_list _cmd_result
-  integer ret=1
-  _cmd_result=`kubectl get ingresses --all-namespaces 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _ing_result=(`echo ${_cmd_result} | tail -n +2 | tr ' ' '$'`)
-    _ing_list=()
-    for _r in ${_ing_result}
-    do
-      _ing_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $2}'`'[ in '`echo ${_r} | tr '$' ' ' | awk '{print $1}'`']')
-    done
-    _values 'ingress' ${_ing_list} && ret=0
-  fi
-  return ret
+  __kube_get_exec 'ingresses' __kube_get_ingresses_comment
+}
+
+__kube_get_networkpolicies_comment(){
+  echo -n $(__parse_print2list ${_r} 1)'[pod-selector: '$(__parse_print2list ${_r} 2)']'
 }
 
 __kube_get_networkpolicies(){
-  local -a _nwp_result _nwp_list _cmd_result
-  integer ret=1
-  _cmd_result=`kubectl get networkpolicies --all-namespaces 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _nwp_result=(`echo ${_cmd_result} | tail -n +2 | tr ' ' '$'`)
-    _nwp_list=()
-    for _r in ${_nwp_result}
-    do
-      _nwp_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $2}'`'[ in '`echo ${_r} | tr '$' ' ' | awk '{print $1}'`']')
-    done
-    _values 'networkpolicie' ${_nwp_list} && ret=0
-  fi
-  return ret
+  __kube_get_exec 'networkpolicies' __kube_get_networkpolicies_comment
 }
 
 __kube_get_clusterrolebindings(){
-  local -a _csb_list _cmd_result
-  integer ret=1
-  _cmd_result=`kubectl get clusterrolebindings 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _csb_list=(`echo ${_cmd_result} | tail -n +2 | awk '{print $1}' `)
-    compadd ${_csb_list[@]} && ret=0
-  fi
-  return ret
+  __kube_get_exec_nocomment 'clusterrolebindings'
 }
 
 __kube_get_clusterroles(){
-  local -a _csr_list _cmd_result
-  integer ret=1
-  _cmd_result=`kubectl get clusterroles 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _csr_list=(`echo ${_cmd_result} | tail -n +2 | awk '{print $1}' `)
-    compadd ${_csr_list[@]} && ret=0
-  fi
-  return ret
+  __kube_get_exec_nocomment 'clusterroles'
 }
 
 __kube_get_rolebindings(){
-  local -a _rb_list _cmd_result
-  integer ret=1
-  _cmd_result=`kubectl get rolebindings --all-namespaces 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _rb_list=(`echo ${_cmd_result} | tail -n +2 | awk '{print $2}' `)
-    compadd ${_rb_list[@]} && ret=0
-  fi
-  return ret
+  __kube_get_exec_nocomment 'rolebindings'
 }
 
 __kube_get_roles(){
-  local -a _r_list _cmd_result
-  integer ret=1
-  _cmd_result=`kubectl get roles --all-namespaces 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _r_list=(`echo ${_cmd_result} | tail -n +2 | awk '{print $2}' `)
-    compadd ${_r_list[@]} && ret=0
-  fi
-  return ret
+  __kube_get_exec_nocomment 'roles'
+}
+
+__kube_get_storageclasses_comment(){
+  echo -n $(__parse_print2list ${_r} 1)'[provisioner: '$(__parse_print2list ${_r} 2)']'
 }
 
 __kube_get_storageclasses(){
-  local -a _stc_result _stc_list _cmd_result
-  integer ret=1
-  _cmd_result=`kubectl get storageclasses 2>/dev/null`
-  if [ ! -z ${_cmd_result} ]; then
-    _stc_result=(`echo ${_cmd_result} | tail -n +2 | tr ' ' '$'`)
-    _stc_list=()
-    for _r in ${_stc_result}
-    do
-      _stc_list+=(`echo ${_r} | tr '$' ' ' | awk '{print $1}'`'['`echo ${_r} | tr '$' ' ' | awk '{print $2}'`']')
-    done
-    _values 'storageclasses' ${_stc_list} && ret=0
-  fi
-  return ret
+  __kube_get_exec 'storageclasses' __kube_get_networkpolicies_comment
 }
 
 __hook_api_resources(){
@@ -1117,9 +947,31 @@ _kubectl(){
 
   case $state in
     args)
+
+      if [ ! -z ${opt_args[-n]} ]; then
+        _filter_namespace=${opt_args[-n]}
+      fi
+
       if [ ! -z ${opt_args[--namespace]} ]; then
         _filter_namespace=${opt_args[--namespace]}
       fi
+
+      if [ ! -z ${opt_args[--cluster]} ]; then
+        _filter_cluster=${opt_args[--cluster]}
+      fi
+
+      if [ ! -z ${opt_args[--user]} ]; then
+        _filter_user=${opt_args[--user]}
+      fi
+
+      if [ ! -z ${opt_args[--context]} ]; then
+        _filter_context=${opt_args[--context]}
+      fi
+
+      if [ ! -z ${opt_args[--server]} ]; then
+        _filter_server=${opt_args[--server]}
+      fi
+
       case $words[1] in
         create)
           _arguments \
