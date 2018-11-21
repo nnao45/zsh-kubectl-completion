@@ -3,7 +3,7 @@
 #
 # Support kubectl version v1.12.2
 # Inspired by
-#   https://github.com/zsh-users/zsh-completions/blob/master/src/_golang
+#   https://github.com/zsh-users/zsh-completionsrfe/blob/master/src/_golang
 #   https://github.com/felixr/docker-zsh-completion/blob/master/_docker
 #   https://github.com/git/git/blob/master/contrib/completion/git-completion.zsh
 
@@ -174,10 +174,10 @@ __kube_get_api_resources2name(){
       _parse_list+=('nodes:nodes:__kube_get_nodes')
     ;;
     persistentvolumeclaims)
-      _parse_list+=('persistentvolumeclaims:persistentvolumeclaims:__kube_get_pvc')
+      _parse_list+=('persistentvolumeclaims:persistentvolumeclaims:__kube_get_persistentvolumeclaims')
     ;;
     persistentvolumes)
-      _parse_list+=('persistentvolumes:persistentvolumes:__kube_get_pv')
+      _parse_list+=('persistentvolumes:persistentvolumes:__kube_get_persistentvolumes')
     ;;
     pods)
       _parse_list+=('pods:pods:__kube_get_pods')
