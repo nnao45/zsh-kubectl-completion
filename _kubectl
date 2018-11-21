@@ -1,4 +1,6 @@
 #compdef kubectl
+# nnao45/zsh-kubectl-completion's vrsion: v0.1.2
+#
 # Support kubectl version v1.12.2
 # Inspired by
 #   https://github.com/zsh-users/zsh-completions/blob/master/src/_golang
