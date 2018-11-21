@@ -27,7 +27,7 @@ __parse_kube_get(){
 
   if [ ${1} = 'api-resources' ]; then
     eval kubectl ${1} ${_ns} ${_cl} ${_ur} ${_cx} ${sv} -o wide 2>/dev/null
-  elif [ ${1} = 'context' ]; then
+  elif [ ${1} = 'contexts' ]; then
     eval kubectl config get-contexts ${_ns} ${_cl} ${_ur} ${_cx} ${sv} 2>/dev/null
   else
     eval kubectl get ${1} ${_ns} ${_cl} ${_ur} ${_cx} ${sv} -o wide 2>/dev/null
@@ -326,7 +326,7 @@ __kube_get_serviceaccounts(){
 }
 
 __kube_get_apiservices_comment(){
-  echo -n $(__parse_print2list ${_r} 1)'[created_at: '$(__parse_print2list ${_r} 2)']'
+  echo -n $(__parse_print2list ${1} 1)'[created_at: '$(__parse_print2list ${1} 2)']'
 }
 
 __kube_get_apiservices(){
@@ -334,7 +334,7 @@ __kube_get_apiservices(){
 }
 
 __kube_get_controllerrevisions_comment(){
-  echo -n $(__parse_print2list ${_r} 1)'['$(__parse_print2list ${_r} 2)']'
+  echo -n $(__parse_print2list ${1} 1)'['$(__parse_print2list ${1} 2)']'
 }
 
 __kube_get_controllerrevisions(){
@@ -342,7 +342,7 @@ __kube_get_controllerrevisions(){
 }
 
 __kube_get_daemonsets_comment(){
-  echo -n $(__parse_print2list ${_r} 1)'[desired: '$(__parse_print2list ${_r} 2)' current: '$(__parse_print2list ${_r} 3)' ready: '$(__parse_print2list ${_r} 4)' up-to-date: '$(__parse_print2list ${_r} 5)' available: '$(__parse_print2list ${_r} 6)']' 
+  echo -n $(__parse_print2list ${1} 1)'[desired: '$(__parse_print2list ${1} 2)' current: '$(__parse_print2list ${1} 3)' ready: '$(__parse_print2list ${1} 4)' up-to-date: '$(__parse_print2list ${1} 5)' available: '$(__parse_print2list ${1} 6)']' 
 }
 
 __kube_get_daemonsets(){
@@ -350,7 +350,7 @@ __kube_get_daemonsets(){
 }
 
 __kube_get_deployments_comment(){
-  echo -n $(__parse_print2list ${_r} 1)'[desired: '$(__parse_print2list ${_r} 2)' current: '$(__parse_print2list ${_r} 3)' up-to-date: '$(__parse_print2list ${_r} 4)' available: '$(__parse_print2list ${_r} 5)']' 
+  echo -n $(__parse_print2list ${1} 1)'[desired: '$(__parse_print2list ${1} 2)' current: '$(__parse_print2list ${1} 3)' up-to-date: '$(__parse_print2list ${1} 4)' available: '$(__parse_print2list ${1} 5)']' 
 }
 
 __kube_get_deployments(){
@@ -358,7 +358,7 @@ __kube_get_deployments(){
 }
 
 __kube_get_ingresses_comment(){
-  echo -n $(__parse_print2list ${_r} 1)'[hosts: '$(__parse_print2list ${_r} 2)' lieten '$(__parse_print2list ${_r} 3)':'$(__parse_print2list ${_r} 4)']'
+  echo -n $(__parse_print2list ${1} 1)'[hosts: '$(__parse_print2list ${1} 2)' lieten '$(__parse_print2list ${1} 3)':'$(__parse_print2list ${1} 4)']'
 }
 
 __kube_get_ingresses(){
@@ -366,7 +366,7 @@ __kube_get_ingresses(){
 }
 
 __kube_get_networkpolicies_comment(){
-  echo -n $(__parse_print2list ${_r} 1)'[pod-selector: '$(__parse_print2list ${_r} 2)']'
+  echo -n $(__parse_print2list ${1} 1)'[pod-selector: '$(__parse_print2list ${1} 2)']'
 }
 
 __kube_get_networkpolicies(){
@@ -390,14 +390,14 @@ __kube_get_roles(){
 }
 
 __kube_get_storageclasses_comment(){
-  echo -n $(__parse_print2list ${_r} 1)'[provisioner: '$(__parse_print2list ${_r} 2)']'
+  echo -n $(__parse_print2list ${1} 1)'[provisioner: '$(__parse_print2list ${1} 2)']'
 }
 
 __kube_get_storageclasses(){
   __kube_get_exec 'storageclasses' __kube_get_networkpolicies_comment
 }
 
-__kube_get_context_comment(){
+__kube_get_contexts_comment(){
   if echo ${1} | grep '*' > /dev/null 2>&1; then
     echo -n $(__parse_print2list ${1} 2)'[current: true]'
   else
@@ -405,8 +405,8 @@ __kube_get_context_comment(){
   fi
 }
 
-__kube_get_context(){
-  __kube_get_exec 'context' __kube_get_context_comment
+__kube_get_contexts(){
+  __kube_get_exec 'contexts' __kube_get_contexts_comment
 }
 
 _hook_api_resources(){
@@ -755,7 +755,7 @@ _kubectl(){
   '--client-certificate[Path to a client certificate file for TLS]' 
   '--client-key[Path to a client key file for TLS]' 
   '--cluster[The name of the kubeconfig cluster to use]' 
-  '--context[The name of the kubeconfig context to use]:contexts:__kube_get_context' 
+  '--context[The name of the kubeconfig context to use]:contexts:__kube_get_contexts' 
   '--help[Get more information about a this command help]' 
   '--insecure-skip-tls-verify[If true, the server'\''s certificate will not be checked for validity. This will make your HTTPS connections insecure]' 
   '--kubeconfig[Path to the kubeconfig file to use for CLI requests.]:kubeconfig:_files' 
