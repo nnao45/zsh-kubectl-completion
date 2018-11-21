@@ -420,10 +420,10 @@ __hook_api_resources(){
       __kube_get_nodes
     ;;
     persistentvolumeclaims)
-      __kube_get_pvc
+      __kube_get_persistentvolumeclaims
     ;;
     persistentvolumes)
-      __kube_get_pv
+      __kube_get_persistentvolumes
     ;;
     pods)
       __kube_get_pods
@@ -1104,8 +1104,7 @@ _kubectl(){
             '(-w --watch)'{-w,--watch}'[After listing/getting the requested object, watch for changes. Uninitialized objects are excluded if no object name is provided.]' \
             '--watch-only[Watch for changes to the requested object(s), without listing/getting first.]' \
             "1: :{_alternative ':get_resources:__kube_get_api_resources' }" \
-            "2: :{_alternative ':get_resources:__hook_api_resources'}" \
-            "3: :{_alternative ':get_resources:__hook_api_namespaces'}" && ret=0
+            "2: :{_alternative ':get_resources:__hook_api_resources'}" && ret=0
         ;;
 
         edit)
@@ -1122,8 +1121,7 @@ _kubectl(){
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
             '--validate[If true, use a schema to validate the input before sending it]' \
             '--windows-line-endings[Defaults to the line ending native to your platform.]' \
-            "1: :{_alternative ':get_resources:__kube_get_api_resources2name' }" \
-            "2: :{_alternative ':get_resources:__hook_api_namespaces'}" && ret=0
+            "1: :{_alternative ':get_resources:__kube_get_api_resources2name' }" && ret=0
         ;;
 
         delete)
@@ -1144,8 +1142,7 @@ _kubectl(){
             '--timeout[The length of time to wait before giving up on a delete, zero means determine a timeout from the size of the object]' \
             '--wait[If true, wait for resources to be gone before returning. This waits for finalizers.]' \
             "1: :{_alternative ':get_resources:__kube_get_api_resources' }" \
-            "2: :{_alternative ':get_resources:__hook_api_resources'}" \
-            "3: :{_alternative ':get_resources:__hook_api_namespaces'}" && ret=0
+            "2: :{_alternative ':get_resources:__hook_api_resources'}" && ret=0
         ;;
 
         rollout)
@@ -1187,8 +1184,7 @@ _kubectl(){
             '--save-config[If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.]' \
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
             "1: :{_alternative ':get_resources:__kube_get_api_resources' }" \
-            "2: :{_alternative ':get_resources:__hook_api_resources'}" \
-            "3: :{_alternative ':get_resources:__hook_api_namespaces'}" && ret=0
+            "2: :{_alternative ':get_resources:__hook_api_resources'}" && ret=0
         ;;
 
         certificate)
@@ -1260,8 +1256,7 @@ _kubectl(){
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--show-events[If true, display events related to the described object.]' \
             "1: :{_alternative ':get_resources:__kube_get_api_resources' }" \
-            "2: :{_alternative ':get_resources:__hook_api_resources'}" \
-            "3: :{_alternative ':get_resources:__hook_api_namespaces'}" && ret=0
+            "2: :{_alternative ':get_resources:__hook_api_resources'}" && ret=0
         ;;
 
         logs)
@@ -1278,8 +1273,7 @@ _kubectl(){
             '--since-time[Only return logs after a specific date (RFC3339). Defaults to all logs. Only one of since-time / since may be used.]' \
             '--tail[Lines of recent log file to display. Defaults to -1 with no selector, showing all log lines otherwise 10, if a selector is provided.]' \
             '--timestamps[Include timestamps on each line in the log output]' \
-            "1: :{_alternative ':get_resources:__kube_get_api_resources2name' }" \
-            "2: :{_alternative ':get_resources:__hook_api_namespaces'}" && ret=0
+            "1: :{_alternative ':get_resources:__kube_get_api_resources2name' }" && ret=0
         ;;
 
         attach)
@@ -1289,8 +1283,7 @@ _kubectl(){
             '--pod-running-timeout[The length of time (like 5s, 2m, or 3h, higher than zero) to wait until at least one pod is running]' \
             '(-i --stdin)'{-i,--stdin}'[Pass stdin to the container]' \
             '(-t --tty)'{-t,--tty}'[Stdin is a TTY]' \
-            "1: :{_alternative ':log_pods:__kube_get_pods' }" \
-            "2: :{_alternative ':namespace:__pod_hook_namespace' }" && ret=0
+            "1: :{_alternative ':log_pods:__kube_get_pods' }" && ret=0
         ;;
 
         exec)
@@ -1300,16 +1293,14 @@ _kubectl(){
             '(-p --pod)'{-p,--pod}'[Pod name]' \
             '(-i --stdin)'{-i,--stdin}'[Pass stdin to the container]' \
             '(-t --tty)'{-t,--tty}'[Stdin is a TTY]' \
-            "1: :{_alternative ':log_pods:__kube_get_pods' }" \
-            "2: :{_alternative ':namespace:__pod_hook_namespace' }" && ret=0
+            "1: :{_alternative ':log_pods:__kube_get_pods' }" && ret=0
         ;;
 
         port-forward)
           _arguments \
             ${_global_flags[@]} \
             '--pod-running-timeout:[The length of time (like 5s, 2m, or 3h, higher than zero) to wait until at least one pod is running]' \
-            "1: :{_alternative ':get_resources:__kube_get_api_resources2name' }" \
-            "2: :{_alternative ':get_resources:__hook_api_namespaces'}" && ret=0
+            "1: :{_alternative ':get_resources:__kube_get_api_resources2name' }" && ret=0
         ;;
 
         proxy)
@@ -1411,8 +1402,7 @@ _kubectl(){
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
             '--timeout[The length of time to wait before giving up on a delete, zero means determine a timeout from the size of the object]' && ret=0
-            "1: :{_alternative ':get_resources:__kube_get_api_resources2name' }" \
-            "2: :{_alternative ':get_resources:__hook_api_namespaces'}" && ret=0
+            "1: :{_alternative ':get_resources:__kube_get_api_resources2name' }" && ret=0
         ;;
         convert)
           _arguments \
@@ -1445,8 +1435,7 @@ _kubectl(){
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--template[Template string or path to template file to use when -o=go-template,-o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
             "1: :{_alternative ':get_resources:__kube_get_api_resources' }" \
-            "2: :{_alternative ':get_resources:__hook_api_resources'}" \
-            "3: :{_alternative ':get_resources:__hook_api_namespaces'}" && ret=0
+            "2: :{_alternative ':get_resources:__hook_api_resources'}" && ret=0
         ;;
         annotate)
           _arguments \
@@ -1467,8 +1456,7 @@ _kubectl(){
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--template[Template string or path to template file to use when -o=go-template,-o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
             "1: :{_alternative ':get_resources:__kube_get_api_resources' }" \
-            "2: :{_alternative ':get_resources:__hook_api_resources'}" \
-            "3: :{_alternative ':get_resources:__hook_api_namespaces'}" && ret=0 
+            "2: :{_alternative ':get_resources:__hook_api_resources'}" && ret=0 
        ;;
        completion)
          _arguments \
