@@ -74,7 +74,7 @@ __kube_get_exec_nocomment(){
 }
 
 __kube_get_pods_comment(){
-  echo -n $(__parse_print2list ${1} 1)'[node: '$(__parse_print2list ${1} 7)']'
+  echo -n $(__parse_print2list ${1} 1)'[ready: '$(__parse_print2list ${1} 2)' status: '$(__parse_print2list ${1} 3)' IP: '$(__parse_print2list ${1} 6)' node: '$(__parse_print2list ${1} 7)']'
 }
 
 __kube_get_pods(){
