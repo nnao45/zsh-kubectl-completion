@@ -28,6 +28,15 @@ $ curl -fLo ~/.zsh/completion_kubectl \
 $ exec zsh
 ```
 
+# Resource Filitling
+This completion of kubectl has several flags corresponding to context override, for example, specify the namespace of the operation target --namespace flag should be set before entering resource name such as pod name So we will use the target namespace resource as a candidate for completion. The options supported for override are as follows.
+- --kubeconfig
+- --cluster
+- --user
+- --context
+- --namespace
+- --server
+
 ## And...
 If you want to complete list is "non grouped", you set additional attr.  
 (I don't like grouped complete list when same word comment.)
