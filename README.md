@@ -1,5 +1,5 @@
 ![v1.12](https://img.shields.io/badge/Kubernetes-v1.12-blue.svg)
-[![v0.1.4](https://img.shields.io/badge/version-v0.1.4-ff69b4.svg)](https://github.com/nnao45/pexpo/releases/tag/v0.1.4)
+![v0.1.4](https://img.shields.io/badge/version-v0.1.4-ff69b4.svg)
 
 # nnao45/zsh-kubectl-completions
 Rich [zsh](http://zsh.org) completion for the [kubectl](https://kubernetes.io/docs/reference/kubectl) command.
