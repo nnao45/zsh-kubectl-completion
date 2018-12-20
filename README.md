@@ -1,7 +1,10 @@
-[![v0.1.4](https://img.shields.io/badge/version-v0.1.4-ff69b4.svg)](https://github.com/nnao45/pexpo/releases/tag/v0.1.4)
+![v1.12](https://img.shields.io/badge/Kubernetes-v1.12-blue.svg)
+![v0.1.4](https://img.shields.io/badge/version-v0.1.4-ff69b4.svg)
 
 # nnao45/zsh-kubectl-completions
 Rich [zsh](http://zsh.org) completion for the [kubectl](https://kubernetes.io/docs/reference/kubectl) command.
+
+![GJF](https://github.com/nnao45/naoGifRepo/blob/master/_kubectl_comp_demo.gif)
 
 # Install
 
@@ -25,6 +28,15 @@ $ curl -fLo ~/.zsh/completion_kubectl \
   https://raw.githubusercontent.com/nnao45/zsh-kubectl-completion/master/_kubectl
 $ exec zsh
 ```
+
+# Resource Filitling
+This completion of kubectl has several flags corresponding to context override, for example, specify the namespace of the operation target --namespace flag should be set before entering resource name such as pod name So we will use the target namespace resource as a candidate for completion. The options supported for override are as follows.
+- --kubeconfig
+- --cluster
+- --user
+- --context
+- --namespace
+- --server
 
 ## And...
 If you want to complete list is "non grouped", you set additional attr.  
