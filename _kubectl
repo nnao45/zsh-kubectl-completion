@@ -24,13 +24,16 @@ __parse_kube_get(){
   if [ ! -z ${_filter_server} ];then
     _sv="--server ${_filter_server}"
   fi
+  if [ ! -z ${_filter_kubeconfig} ];then
+    _kc="--kubeconfig ${_filter_kubeconfig}"
+  fi
 
   if [ ${1} = 'api-resources' ]; then
-    eval kubectl ${1} ${_ns} ${_cl} ${_ur} ${_cx} ${sv} -o wide 2>/dev/null
+    eval kubectl ${1} ${_ns} ${_cl} ${_ur} ${_cx} ${_sv} ${_kc} -o wide 2>/dev/null
   elif [ ${1} = 'contexts' ]; then
-    eval kubectl config get-contexts ${_ns} ${_cl} ${_ur} ${_cx} ${sv} 2>/dev/null
+    eval kubectl config get-contexts ${_ns} ${_cl} ${_ur} ${_cx} ${_sv} ${_kc} 2>/dev/null
   else
-    eval kubectl get ${1} ${_ns} ${_cl} ${_ur} ${_cx} ${sv} -o wide 2>/dev/null
+    eval kubectl get ${1} ${_ns} ${_cl} ${_ur} ${_cx} ${_sv} ${_kc} -o wide 2>/dev/null
   fi
 }
 
@@ -807,6 +810,11 @@ _kubectl(){
       if [ ! -z ${opt_args[--server]} ]; then
         _filter_server=${opt_args[--server]}
       fi
+
+      if [ ! -z ${opt_args[--kubeconfig]} ]; then
+        _filter_kubeconfig=${opt_args[--kubeconfig]}
+      fi
+
 
       case $words[1] in
         create)
