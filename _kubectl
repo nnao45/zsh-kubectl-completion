@@ -65,6 +65,23 @@ __kube_get_exec(){
   return ret
 }
 
+__kube_get_exec_contexts(){
+  local -a _parse_result _parse_list _cmd_result
+  integer ret=1
+  _cmd_result=$(__parse_kube_get ${1})
+  if [ ! -z ${_cmd_result} ]; then
+    _parse_result=($(__parse_cmd_result ${_cmd_result}))
+    _parse_list=()
+    for _r in ${_parse_result}
+    do
+      _parse_list+=("$(${2} ${_r})")
+    done
+    compadd ${_parse_list[@]} && ret=0
+  fi
+  return ret
+}
+
+
 __kube_get_exec_nocomment(){
   local -a _parse_list _cmd_result
   integer ret=1
@@ -413,14 +430,14 @@ __kube_get_storageclasses(){
 
 __kube_get_contexts_comment(){
   if echo ${1} | grep '*' > /dev/null 2>&1; then
-    echo -n $(__parse_print2list ${1} 2)'[current: true]'
+    echo -n $(__parse_print2list ${1} 2)
   else
-    echo -n $(__parse_print2list ${1} 1)'[current: false]'
+    echo -n $(__parse_print2list ${1} 1)
   fi
 }
 
 __kube_get_contexts(){
-  __kube_get_exec 'contexts' __kube_get_contexts_comment
+  __kube_get_exec_contexts 'contexts' __kube_get_contexts_comment
 }
 
 __hook_api_resources(){
