@@ -224,6 +224,9 @@ __kube_get_api_resources2name(){
     deployments)
       _parse_list+=('deployments:deployments:__kube_get_deployments')
     ;;
+    statefulsets)
+      _parse_list+=('statefulsets:statefulsets:__kube_get_statefulsets')
+    ;;
     ingresses)
       _parse_list+=('ingresses:ingresses:__kube_get_ingresses')
     ;;
@@ -358,6 +361,14 @@ __kube_get_deployments_comment(){
 
 __kube_get_deployments(){
   __kube_get_exec 'deployments' __kube_get_deployments_comment
+}
+
+__kube_get_statefulsets_comment(){
+  echo -n $(__parse_print2list ${1} 1)'[desired: '$(__parse_print2list ${1} 2)' current: '$(__parse_print2list ${1} 3)' up-to-date: '$(__parse_print2list ${1} 4)' available: '$(__parse_print2list ${1} 5)']' 
+}
+
+__kube_get_statefulsets(){
+  __kube_get_exec 'statefulsets' __kube_get_statefulsets_comment
 }
 
 __kube_get_ingresses_comment(){
