@@ -1,5 +1,5 @@
 #compdef kubectl
-# nnao45/zsh-kubectl-completion's version: v0.1.5
+# nnao45/zsh-kubectl-completion's version: v0.1.6
 #
 # Support kubectl version v1.12.2
 # Inspired by
