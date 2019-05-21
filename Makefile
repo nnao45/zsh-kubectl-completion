@@ -7,3 +7,6 @@ CURRENT-VERSION := v0.1.6
 release:
 	sed -i '' -e 's/$(PRE-VERSION)/$(CURRENT-VERSION)/g' README.md
 	sed -i '' -e 's/$(PRE-VERSION)/$(CURRENT-VERSION)/g' $(SRCS)
+	git add .
+	git commit -m "kubectl version $(CURRENT-VERSION)"
+	git tag -a $(CURRENT-VERSION) -m "kubectl version $(CURRENT-VERSION)"
