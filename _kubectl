@@ -279,6 +279,18 @@ __kube_get_api_resources2name(){
   return ret
 }
 
+__kube_rollout_resources2name(){
+  local -a _parse_list
+  integer ret=1
+  _parse_list=()
+  _parse_list+=('daemonsets:daemonsets:__kube_get_daemonsets')
+  _parse_list+=('deployments:deployments:__kube_get_deployments')
+  _parse_list+=('statefulsets:statefulsets:__kube_get_statefulsets')
+  _values -S '/' 'kubectl rollout SUBCOMMAND [options]' $_parse_list && ret=0
+
+  return ret
+}
+
 __kube_get_endpoints_comment(){
   echo -n $(__parse_print2list ${1} 1)'[listen: '$(__parse_print2list ${1} 2)']'
 }
@@ -614,7 +626,7 @@ __rollout_cmd(){
   'status[Show the status of the rollout]'
   'undo[Undo a previous rollout]'
   )
-  _values 'rollout command' $_rollout_cmds[@] && ret=0
+  _values 'kubectl rollout SUBCOMMAND [options]' $_rollout_cmds[@] && ret=0
 
   return ret
 }
@@ -1025,7 +1037,8 @@ _kubectl(){
         rollout)
           _arguments \
             ${_global_flags[@]} \
-            "1: :{_alternative ':rollout_cmd:__rollout_cmd' }" && ret=0
+            "1: :{_alternative ':rollout_cmd:__rollout_cmd' }" \
+            "2: :{_alternative ':rollout_resources:__kube_rollout_resources2name'}" && ret=0
         ;;
 
         scale)
