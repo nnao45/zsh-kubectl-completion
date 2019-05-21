@@ -6,6 +6,12 @@ Rich [zsh](http://zsh.org) completion for the [kubectl](https://kubernetes.io/do
 
 ![GJF](https://github.com/nnao45/naoGifRepo/blob/master/_kubectl_comp_demo.gif)
 
+# Version
+| kubectl | zsh-kubectl-completion |
+|:---:|:---:|
+| v1.12.2 | v0.1.6 |
+| v0.13.5 | TD4 |
+
 # Install
 
 ## zplug
