@@ -1,5 +1,5 @@
 #compdef kubectl
-# nnao45/zsh-kubectl-completion's version: v0.1.9
+# nnao45/zsh-kubectl-completion's version: v0.1.10
 #
 # Support kubectl version v1.13.5
 # Inspired by
@@ -88,7 +88,7 @@ __kube_get_exec_nocomment(){
   _cmd_result=$(__parse_kube_get ${1})
   if [ ! -z ${_cmd_result} ]; then
     _parse_list=($(__parse_cmd_result_withoutcomment ${_cmd_result}))
-    _values "${1}" ${_parse_list[@]} && ret=0
+    _values "${2}" ${_parse_list[@]} && ret=0
   fi
   return ret
 }
@@ -146,20 +146,66 @@ __kube_get_configmaps_comment(){
 }
 
 __kube_get_configmaps(){
-  __kube_get_exec_nocomment 'configmaps'
+  __kube_get_exec_nocomment 'configmaps' ''
 }
 
 __kube_get_podsecuritypolicies(){
-  __kube_get_exec_nocomment 'podsecuritypolicies'
+  __kube_get_exec_nocomment 'podsecuritypolicies' ''
 }
 
 __kube_get_api_resources(){
-  __kube_get_exec_nocomment 'api-resources'
+  local -a comment
+  case ${7} in
+    explain)
+      comment='kubectl explain RESOURCE [options]'
+    ;;
+    get)
+      comment='kubectl get [(-o|--output=)json|yaml|wide|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...](TYPE[.VERSION][.GROUP] [NAME | -l label] | TYPE[.VERSION][.GROUP]/NAME ...) [flags] [options'
+    ;;
+    delete)
+      comment='kubectl delete ([-f FILENAME] | TYPE [(NAME | -l label | --all)]) [options]'
+    ;;
+    patch)
+      comment='kubectl patch (-f FILENAME | TYPE NAME) -p PATCH [options]'
+    ;;
+    label)
+      comment='kubectl label [--overwrite] (-f FILENAME | TYPE NAME) KEY_1=VAL_1 ... KEY_N=VAL_N [--resource-version=version] [options]'
+    ;;
+    annotate)
+      comment='kubectl annotate [--overwrite] (-f FILENAME | TYPE NAME) KEY_1=VAL_1 ... KEY_N=VAL_N [--resource-version=version] [options]'
+    ;;
+    autoscale)
+      comment='kubectl autoscale (-f FILENAME | TYPE NAME | TYPE/NAME) [--min=MINPODS] --max=MAXPODS [--cpu-percent=CPU] [options]'
+    ;;
+    *)
+      comment='api resources'
+    ;;
+  esac
+  __kube_get_exec_nocomment 'api-resources' ${comment}
 }
 
 __kube_get_api_resources2name(){
-  local -a _parse_result __pre_parse_list _parse_list _cmd_result
+  local -a _parse_result __pre_parse_list _parse_list _cmd_result comment
   integer ret=1
+
+  case ${7} in
+    wait)
+      comment='kubectl wait resource.group/name [--for=delete|--for condition=available] [options]'
+    ;;
+    port-forward)
+      comment='kubectl port-forward TYPE/NAME [options] [LOCAL_PORT:]REMOTE_PORT [...[LOCAL_PORT_N:]REMOTE_PORT_N]'
+    ;;
+    edit)
+      comment='kubectl edit (RESOURCE/NAME | -f FILENAME) [options]'
+    ;;
+    logs)
+      comment='kubectl logs [-f] [-p] (POD | TYPE/NAME) [-c CONTAINER] [options]'
+    ;;
+    *)
+      comment='api resources'
+    ;;
+  esac
+
   _cmd_result=$(__parse_kube_get api-resources)
   _pre_parse_list=()
   _parse_list=()
@@ -273,8 +319,8 @@ __kube_get_api_resources2name(){
     ;;
   esac
   done
-  
-  _values -S '/' 'api resource' $_parse_list && ret=0
+
+  _values -S '/' ${comment} $_parse_list && ret=0
 
   return ret
 }
@@ -357,7 +403,7 @@ __kube_get_secrets(){
 }
 
 __kube_get_serviceaccounts(){
-  __kube_get_exec_nocomment 'serviceaccounts'
+  __kube_get_exec_nocomment 'serviceaccounts' ${7}
 }
 
 __kube_get_apiservices_comment(){
@@ -365,7 +411,7 @@ __kube_get_apiservices_comment(){
 }
 
 __kube_get_apiservices(){
-  __kube_get_exec_nocomment 'apiservices'
+  __kube_get_exec_nocomment 'apiservices' ${7}
 }
 
 __kube_get_controllerrevisions_comment(){
@@ -417,19 +463,19 @@ __kube_get_networkpolicies(){
 }
 
 __kube_get_clusterrolebindings(){
-  __kube_get_exec_nocomment 'clusterrolebindings'
+  __kube_get_exec_nocomment 'clusterrolebindings' ''
 }
 
 __kube_get_clusterroles(){
-  __kube_get_exec_nocomment 'clusterroles'
+  __kube_get_exec_nocomment 'clusterroles' ''
 }
 
 __kube_get_rolebindings(){
-  __kube_get_exec_nocomment 'rolebindings'
+  __kube_get_exec_nocomment 'rolebindings' ''
 }
 
 __kube_get_roles(){
-  __kube_get_exec_nocomment 'roles'
+  __kube_get_exec_nocomment 'roles' ''
 }
 
 __kube_get_storageclasses_comment(){
@@ -437,7 +483,7 @@ __kube_get_storageclasses_comment(){
 }
 
 __kube_get_storageclasses(){
-  __kube_get_exec 'storageclasses' __kube_get_networkpolicies_comment
+  __kube_get_exec 'storageclasses' __kube_get_storageclasses_comment
 }
 
 __kube_get_contexts_comment(){
@@ -627,6 +673,28 @@ __rollout_cmd(){
   'undo[Undo a previous rollout]'
   )
   _values 'kubectl rollout SUBCOMMAND [options]' $_rollout_cmds[@] && ret=0
+
+  return ret
+}
+
+__scale_cmd() {
+  local -a _scale_cmds
+  integer ret=1
+  _scale_cmds=(
+  '--replicas[The new desired number of replicas. Required.]'
+  )
+  _values 'kubectl scale [--resource-version=version] [--current-replicas=count] --replicas=COUNT (-f FILENAME | TYPE NAME) [options]' $_scale_cmds[@] && ret=0
+
+  return ret
+}
+
+__hook_autoscale_cmd() {
+  local -a _hook_autoscale_cmds
+  integer ret=1
+  _hook_autoscale_cmds=(
+  '--max[The upper limit for the number of pods that can be set by the autoscaler. Required.]'
+  )
+  _values 'kubectl autoscale (-f FILENAME | TYPE NAME | TYPE/NAME) [--min=MINPODS] --max=MAXPODS [--cpu-percent=CPU] [options]' $_hook_autoscale_cmds[@] && ret=0
 
   return ret
 }
@@ -953,7 +1021,7 @@ _kubectl(){
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
             '--timeout[The length of time to wait before giving up on a delete, zero means determine a timeout from the size of the object]' \
             '(-t --tty)'{-t,--tty}'[Allocated a TTY for each container in the pod.]' \
-            '--wait[If true, wait for resources to be gone before returning. This waits for finalizers.]' && ret=0
+            '--wait[If true, wait for resources to be gone before returning. This waits for finalizers.]' \ && ret=0
         ;;
 
         set)
@@ -965,7 +1033,7 @@ _kubectl(){
         explain)
           _arguments \
             ${_global_flags[@]} \
-            "1: :{_alternative ':get_resources:__kube_get_api_resources' }" && ret=0
+            "1: :{_alternative ':get_resources:__kube_get_api_resources explain' }" && ret=0
         ;;
 
         get)
@@ -993,7 +1061,7 @@ _kubectl(){
             '--use-openapi-print-columns[If true, use x-kubernetes-print-column metadata (if present) from the OpenAPI schema for displaying a resource.]' \
             '(-w --watch)'{-w,--watch}'[After listing/getting the requested object, watch for changes. Uninitialized objects are excluded if no object name is provided.]' \
             '--watch-only[Watch for changes to the requested object(s), without listing/getting first.]' \
-            "1: :{_alternative ':get_resources:__kube_get_api_resources' }" \
+            "1: :{_alternative ':get_resources:__kube_get_api_resources get' }" \
             "2: :{_alternative ':get_resources:__hook_api_resources'}" && ret=0
         ;;
 
@@ -1011,7 +1079,7 @@ _kubectl(){
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
             '--validate[If true, use a schema to validate the input before sending it]' \
             '--windows-line-endings[Defaults to the line ending native to your platform.]' \
-            "1: :{_alternative ':get_resources:__kube_get_api_resources2name' }" && ret=0
+            "1: :{_alternative ':get_resources:__kube_get_api_resources2name edit' }" && ret=0
         ;;
 
         delete)
@@ -1031,7 +1099,7 @@ _kubectl(){
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--timeout[The length of time to wait before giving up on a delete, zero means determine a timeout from the size of the object]' \
             '--wait[If true, wait for resources to be gone before returning. This waits for finalizers.]' \
-            "1: :{_alternative ':get_resources:__kube_get_api_resources' }" \
+            "1: :{_alternative ':get_resources:__kube_get_api_resources delete' }" \
             "2: :{_alternative ':get_resources:__hook_api_resources'}" && ret=0
         ;;
 
@@ -1051,11 +1119,11 @@ _kubectl(){
             '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files identifying the resource to set a new size]:files:_files' \
             '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template|go-template-file|template|templatefile|jsonpath|jsonpath-file.]' \
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
-            '--replicas[The new desired number of replicas. Required.]' \
             '--resource-version[Requires that the current resource version match this value in order to scale.]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
-            '--timeout[The length of time to wait before giving up on a scale operation, zero means don'\''t wait. Any other values should contain a corresponding time unit (e.g. 1s, 2m, 3h).]'  && ret=0
+            '--timeout[The length of time to wait before giving up on a scale operation, zero means don'\''t wait. Any other values should contain a corresponding time unit (e.g. 1s, 2m, 3h).]' \
+            "1: :{_alternative ':scale_cmd:__scale_cmd' }"  && ret=0
         ;;
 
         autoscale)
@@ -1074,8 +1142,9 @@ _kubectl(){
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
             '--save-config[If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.]' \
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
-            "1: :{_alternative ':get_resources:__kube_get_api_resources' }" \
-            "2: :{_alternative ':get_resources:__hook_api_resources'}" && ret=0
+            "1: :{_alternative ':get_resources:__kube_get_api_resources autoscale' }" \
+            "2: :{_alternative ':get_resources:__hook_api_resources'}" \
+            "3: :{_alternative ':get_resources:__hook_autoscale_cmd'}" && ret=0
         ;;
 
         certificate)
@@ -1148,7 +1217,7 @@ _kubectl(){
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--show-events[If true, display events related to the described object.]' \
-            "1: :{_alternative ':get_resources:__kube_get_api_resources' }" \
+            "1: :{_alternative ':get_resources:__kube_get_api_resources describe' }" \
             "2: :{_alternative ':get_resources:__hook_api_resources'}" && ret=0
         ;;
 
@@ -1166,7 +1235,7 @@ _kubectl(){
             '--since-time[Only return logs after a specific date (RFC3339). Defaults to all logs. Only one of since-time / since may be used.]' \
             '--tail[Lines of recent log file to display. Defaults to -1 with no selector, showing all log lines otherwise 10, if a selector is provided.]' \
             '--timestamps[Include timestamps on each line in the log output]' \
-            "1: :{_alternative ':get_resources:__kube_get_api_resources2name' }" && ret=0
+            "1: :{_alternative ':get_resources:__kube_get_api_resources2name logs' }" && ret=0
         ;;
 
         attach)
@@ -1192,7 +1261,7 @@ _kubectl(){
           _arguments \
             ${_global_flags[@]} \
             '--pod-running-timeout[The length of time (like 5s, 2m, or 3h, higher than zero) to wait until at least one pod is running]' \
-            "1: :{_alternative ':get_resources:__kube_get_api_resources2name' }" && ret=0
+            "1: :{_alternative ':get_resources:__kube_get_api_resources2name port-forward' }" && ret=0
         ;;
 
         proxy)
@@ -1256,7 +1325,7 @@ _kubectl(){
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
             '--type[The type of patch being provided; one of \[json merge strategic\]]' \
-            "1: :{_alternative ':get_resources:__kube_get_api_resources' }" && ret=0
+            "1: :{_alternative ':get_resources:__kube_get_api_resources patch' }" && ret=0
         ;;
         replace)
           _arguments \
@@ -1286,7 +1355,7 @@ _kubectl(){
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
             '--timeout[The length of time to wait before giving up on a delete, zero means determine a timeout from the size of the object]' && ret=0
-            "1: :{_alternative ':get_resources:__kube_get_api_resources2name' }" && ret=0
+            "1: :{_alternative ':get_resources:__kube_get_api_resources2name wait' }" && ret=0
         ;;
         convert)
           _arguments \
@@ -1318,7 +1387,7 @@ _kubectl(){
             '--resource-version[If non-empty, the labels update will only succeed if this is the current resource-version for the object. Only valid when specifying a single resource.]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--template[Template string or path to template file to use when -o=go-template,-o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
-            "1: :{_alternative ':get_resources:__kube_get_api_resources' }" \
+            "1: :{_alternative ':get_resources:__kube_get_api_resources label' }" \
             "2: :{_alternative ':get_resources:__hook_api_resources'}" && ret=0
         ;;
         annotate)
@@ -1339,7 +1408,7 @@ _kubectl(){
             '--resource-version[If non-empty, the labels update will only succeed if this is the current resource-version for the object. Only valid when specifying a single resource.]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--template[Template string or path to template file to use when -o=go-template,-o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
-            "1: :{_alternative ':get_resources:__kube_get_api_resources' }" \
+            "1: :{_alternative ':get_resources:__kube_get_api_resources annotate' }" \
             "2: :{_alternative ':get_resources:__hook_api_resources'}" && ret=0 
        ;;
        completion)

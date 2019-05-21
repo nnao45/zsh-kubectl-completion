@@ -1,7 +1,7 @@
 NAME            := zsh-kubectl-completion
 SRCS            := $(shell find . -type f -name '_*')
 PRE-VERSION     := $(shell grep 'version:' _kubectl | cut -c 44-)
-CURRENT-VERSION := v0.1.9
+CURRENT-VERSION := v0.1.10
 
 .PHONY: release
 release:
