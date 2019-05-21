@@ -1047,8 +1047,8 @@ _kubectl(){
             '--all[Select all resources in the namespace of the specified resource types]' \
             '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
             '--current-replicas[Precondition for current size. Requires that the current size of the resource match this value in order to scale.]' \
-            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]:files:_files' \
-            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|wide|name|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...See custom columns \[http://kubernetes.io/docs/user-guide/kubectl-overview/#custom-columns\], golang template \[http://golang.org/pkg/text/template/#pkg-overview\] and jsonpath template \[http://kubernetes.io/docs/user-guide/jsonpath\].]' \
+            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files identifying the resource to set a new size]:files:_files' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template|go-template-file|template|templatefile|jsonpath|jsonpath-file.]' \
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
             '--replicas[The new desired number of replicas. Required.]' \
             '--resource-version[Requires that the current resource version match this value in order to scale.]' \
