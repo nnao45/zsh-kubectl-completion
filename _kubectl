@@ -1,5 +1,5 @@
 #compdef kubectl
-# nnao45/zsh-kubectl-completion's version: v0.1.8
+# nnao45/zsh-kubectl-completion's version: v0.1.9
 #
 # Support kubectl version v1.13.5
 # Inspired by
@@ -774,7 +774,8 @@ __basic_cmd(){
   'label[Update the labels on a resource]'
   'annotate[Update the annotations on a resource]'
   'completion[Output shell completion code for the specified shell (bash or zsh)]'
-  'alpha[Commands for features in alpha]'
+  # No alpha commands are available in this version of kubectl
+  # 'alpha[Commands for features in alpha]'
   'api-resources[Print the supported API resources on the server]'
   'api-versions[Print the supported API versions on the server, in the form of \"group/version\"]'
   'config[Modify kubeconfig files]'
@@ -1063,8 +1064,8 @@ _kubectl(){
             '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
             '--cpu-percent[The target average CPU utilization (represented as a percent of requested CPU) over all the pods. If it'\''s not specified or negative, a default autoscaling policy will be used.]' \
             '--dry-run[If true, only print the object that would be sent, without sending it.]' \
-            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files identifying the resource to autoscale.]:files:_files'' \
-            '--generator[The name of the API generator to use. Currently there is only 1 generator.] \
+            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files identifying the resource to autoscale.]:files:_files' \
+            '--generator[The name of the API generator to use. Currently there is only 1 generator.]' \
             '--max[The upper limit for the number of pods that can be set by the autoscaler. Required.]' \
             '--min[The lower limit for the number of pods that can be set by the autoscaler. If it'\''s not specified or negative, the server will apply a default value.]' \
             '--name[The name for the newly created object. If not specified, the name of the input resource will be used.]' \
@@ -1205,7 +1206,7 @@ _kubectl(){
           _arguments \
             ${_global_flags[@]} \
             '(-c --container)'{-c,--container}'[Container name. If omitted, the first container in the pod will be chosen]' \
-            '--no-preserve'[The copied file/directory'\''s ownership and permissions will not be preserved in the container] && ret=0
+            '--no-preserve[The copied file/directory'\''s ownership and permissions will not be preserved in the container]' && ret=0
         ;;
 
         auth)
@@ -1240,7 +1241,7 @@ _kubectl(){
             'edit-last-applied[Edit latest last-applied-configuration annotations of a resource/object]' \
             'set-last-applied[Set the last-applied-configuration annotation on a live object to match the contents of a file.]' \
             'view-last-applied[View latest last-applied-configuration annotations of a resource/object]' && ret=0
-        ;;
+       ;;
 
         patch)
           _arguments \
