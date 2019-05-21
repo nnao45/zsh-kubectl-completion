@@ -661,7 +661,7 @@ __top_cmd(){
   'node[Display Resource (CPU/Memory/Storage) usage of nodes]'
   'pod[Display Resource (CPU/Memory/Storage) usage of pods]'
   )
-  _values 'top command' $_top_cmds[@] && ret=0
+  _values 'kubectl top [flags] [options]' $_top_cmds[@] && ret=0
 
   return ret
 }
@@ -673,7 +673,7 @@ __auth_cmd(){
   'can-i[Check whether an action is allowed]'
   'reconcile[Reconciles rules for RBAC Role, RoleBinding, ClusterRole, and ClusterRole binding objects]'
   )
-  _values 'auth command' $_auth_cmds[@] && ret=0
+  _values 'kubectl auth [flags] [options]' $_auth_cmds[@] && ret=0
 
   return ret
 }
@@ -1142,7 +1142,7 @@ _kubectl(){
           _arguments \
             ${_global_flags[@]} \
             '--all-namespaces[If present, list the requested object(s) across all namespaces. Namespace in current context is ignored even if specified with --namespace.]' \
-            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to describe the resource]:files:_files' \
+            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files containing the resource to describe]:files:_files' \
             '--include-uninitialized[If true, the kubectl command applies to uninitialized objects. If explicitly set to false, this flag overrides other flags that make the kubectl commands apply to uninitialized objects, e.g., "--all". Objects with empty metadata.initializers are regarded as initialized.]' \
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
@@ -1182,7 +1182,6 @@ _kubectl(){
           _arguments \
             ${_global_flags[@]} \
             '(-c --container)'{-c,--container}'[Container name. If omitted, the first container in the pod will be chosen]' \
-            '(-p --pod)'{-p,--pod}'[Pod name]' \
             '(-i --stdin)'{-i,--stdin}'[Pass stdin to the container]' \
             '(-t --tty)'{-t,--tty}'[Stdin is a TTY]' \
             "1: :{_alternative ':log_pods:__kube_get_pods' }" && ret=0
@@ -1191,30 +1190,22 @@ _kubectl(){
         port-forward)
           _arguments \
             ${_global_flags[@]} \
-            '--pod-running-timeout:[The length of time (like 5s, 2m, or 3h, higher than zero) to wait until at least one pod is running]' \
+            '--pod-running-timeout[The length of time (like 5s, 2m, or 3h, higher than zero) to wait until at least one pod is running]' \
             "1: :{_alternative ':get_resources:__kube_get_api_resources2name' }" && ret=0
         ;;
 
         proxy)
           _arguments \
             ${_global_flags[@]} \
-            '--accept-hosts[Regular expression for hosts that the proxy should accept.]' \
-            '--accept-paths[Regular expression for paths that the proxy should accept.]' \
-            '--address[The IP address on which to serve on.]' \
-            '--api-prefix[Prefix to serve the proxied API under.]' \
-            '--disable-filter[If true, disable request filtering in the proxy. This is dangerous, and can leave you vulnerable to XSRF attacks, when used with an accessible port.]' \
-            '(-p --port)'{-p,--port}'[The port on which to run the proxy. Set to 0 to pick a random port.]' \
-            '--reject-methods[Regular expression for HTTP methods that the proxy should reject \(example \-\-reject-methods='\''POST,PUT,PATCH'\''\).]' \
-            '--reject-paths[Regular expression for paths that the proxy should reject. Paths specified here will be rejected even accepted by \-\-accept-paths.]' \
-            '(-u --unix-socket)'{-u,--unix-socket}'[Unix socket on which to run the proxy.]' \
-            '(-w --www)'{-w,--www}'[Also serve static files from the given directory under the specified prefix.]' \
-            '(-P --www-prefix)'{-P,--www-prefix}'[Prefix to serve static files under, if static file directory is specified.]' && ret=0
+            '--address[Addresses to listen on (comma separated)]' \
+            '--api-prefix[The length of time (like 5s, 2m, or 3h, higher than zero) to wait until at least one pod is running.]' && ret=0
         ;;
 
         cp)
           _arguments \
             ${_global_flags[@]} \
-            '(-c --container)'{-c,--container}'[Container name. If omitted, the first container in the pod will be chosen]' && ret=0
+            '(-c --container)'{-c,--container}'[Container name. If omitted, the first container in the pod will be chosen]' \
+            '--no-preserve'[The copied file/directory'\''s ownership and permissions will not be preserved in the container] && ret=0
         ;;
 
         auth)
@@ -1230,7 +1221,7 @@ _kubectl(){
             '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
             '--cascade[If true, cascade the deletion of the resources managed by this resource (e.g. Pods created by a ReplicationController).  Default true.]' \
             '--dry-run[If true, only print the object that would be sent, without sending it.]' \
-            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]:files:_files' \
+            '(-f --filename)'{-f,--filename}'[that contains the configuration to apply]:files:_files' \
             '--force[Only used when grace-period=0. If true, immediately remove resources from API and bypass graceful deletion. Note that immediate deletion of some resources may result in inconsistency or data loss and requires confirmation.]' \
             '--grace-period[Period of time in seconds given to the resource to terminate gracefully. Ignored if negative. Set to 1 for immediate shutdown. Can only be set to 0 when --force is true (force deletion).]' \
             '--include-uninitialized[If true, the kubectl command applies to uninitialized objects. If explicitly set to false, this flag overrides other flags that make the kubectl commands apply to uninitialized objects, e.g., \"--all\". Objects with empty metadata.initializers are regarded as initialized.]' \
@@ -1247,8 +1238,8 @@ _kubectl(){
             '--validate[If true, use a schema to validate the input before sending it]' \
             '--wait[If true, wait for resources to be gone before returning. This waits for finalizers.]' \
             'edit-last-applied[Edit latest last-applied-configuration annotations of a resource/object]' \
-  'set-last-applied[Set the last-applied-configuration annotation on a live object to match the contents of a file.]' \
-  'view-last-applied[View latest last-applied-configuration annotations of a resource/object]' && ret=0
+            'set-last-applied[Set the last-applied-configuration annotation on a live object to match the contents of a file.]' \
+            'view-last-applied[View latest last-applied-configuration annotations of a resource/object]' && ret=0
         ;;
 
         patch)
@@ -1256,7 +1247,7 @@ _kubectl(){
             ${_global_flags[@]} \
             '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
             '--dry-run[If true, only print the object that would be sent, without sending it.]' \
-            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]:files:_files' \
+            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files identifying the resource to update]:files:_files' \
             '--local[If true, patch will operate on the content of the file, not the server-side resource.]' \
             '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]' \
             '(-p --patch)'{-p,--patch}'[The patch to be applied to the resource JSON file.]' \
