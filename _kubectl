@@ -1,5 +1,5 @@
 #compdef kubectl
-# nnao45/zsh-kubectl-completion's version: v0.1.7
+# nnao45/zsh-kubectl-completion's version: v0.1.8
 #
 # Support kubectl version v1.13.5
 # Inspired by
@@ -814,7 +814,7 @@ _kubectl(){
   {-n,--namespace}'[If present, the namespace scope for this CLI request]:namespaces:__kube_get_namespaces' 
   '--password[Password for basic authentication to the API server]' 
   '--profile[Name of profile to capture. One of (none|cpu|heap|goroutine|threadcreate|block|mutex)]' 
-  '--profile-output[ Name of the file to write the profile to]'
+  '--profile-output[Name of the file to write the profile to]'
   '--request-timeout[The length of time to wait before giving up on a single server request. Non-zero values should contain a corresponding time unit (e.g. 1s, 2m, 3h). A value of zero means don'\''t timeout requests.]' 
   {-s,--server}'[The address and port of the Kubernetes API server]' 
   '--stderrthreshold[logs at or above this threshold go to stderr]' 
