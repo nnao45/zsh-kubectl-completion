@@ -1,5 +1,5 @@
 #compdef kubectl
-# nnao45/zsh-kubectl-completion's version: v0.1.10
+# nnao45/zsh-kubectl-completion's version: v0.1.11
 #
 # Support kubectl version v1.13.5
 # Inspired by
@@ -1285,7 +1285,7 @@ _kubectl(){
         ;;
 
         apply)
-          _values 'apply command' \
+          _values 'kubectl apply -f FILENAME [options]' \
             ${_global_flags[@]} \
             '--all[Select all resources in the namespace of the specified resource types.]' \
             '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
