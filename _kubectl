@@ -1098,6 +1098,8 @@ _kubectl(){
         cordon)
           _arguments \
             ${_global_flags[@]} \
+            '--dry-run[If true, only print the object that would be sent, without sending it.]' \
+            '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on]' \
             "1: :{_alternative ':cordon_node:__kube_get_nodes' }" && ret=0
         ;;
 
@@ -1105,7 +1107,7 @@ _kubectl(){
           _arguments \
             ${_global_flags[@]} \
             '--dry-run[If true, only print the object that would be sent, without sending it.]' \
-            '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
+            '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on]' \
             "1: :{_alternative ':uncordon_node:__kube_get_nodes' }" && ret=0
         ;;
 
