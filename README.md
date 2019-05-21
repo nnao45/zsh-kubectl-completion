@@ -10,7 +10,7 @@ Rich [zsh](http://zsh.org) completion for the [kubectl](https://kubernetes.io/do
 | kubectl | zsh-kubectl-completion |
 |:---:|:---:|
 | v1.12.2 | v0.1.6 |
-| v0.13.5 | TD4 |
+| v0.13.5 | v0.1.7 |
 
 # Install
 
