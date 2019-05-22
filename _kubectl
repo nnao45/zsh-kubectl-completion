@@ -1,5 +1,5 @@
 #compdef kubectl
-# nnao45/zsh-kubectl-completion's version: v0.1.11
+# nnao45/zsh-kubectl-completion's version: v0.1.12
 #
 # Support kubectl version v1.13.5
 # Inspired by
@@ -90,6 +90,39 @@ __kube_get_exec_nocomment(){
     _parse_list=($(__parse_cmd_result_withoutcomment ${_cmd_result}))
     _values "${2}" ${_parse_list[@]} && ret=0
   fi
+  return ret
+}
+
+__output_flag(){
+  local -a _default_output_flags _output_withfile_flags
+  integer ret=1
+  _default_output_flags=(
+  'json'
+  'yaml'
+  'name'
+  'custom-columns'
+  'custom-columns-file'
+  'go-template'
+  'go-template-file'
+  'jsonpath'
+  'jsonpath-file'
+  )
+
+  case $words[1] in
+    expose | get | edit | delete)
+      compadd $_default_output_flags[@] 'wide' && ret=0
+    ;;
+    api-resources)
+      compadd 'wide' 'name' && ret=0
+    ;;
+    version)
+      compadd 'yaml' 'json' && ret=0
+    ;;
+    *)
+      compadd $_default_output_flags[@]  && ret=0
+    ;;
+  esac
+
   return ret
 }
 
@@ -943,7 +976,7 @@ _kubectl(){
             '--edit[Edit the API resource before creating]' \
             '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]:files:_files' \
             '--help[Get more information about a this command help]' \
-            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|wide|name|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...See custom columns \[http://kubernetes.io/docs/user-guide/kubectl-overview/#custom-columns\], golang template \[http://golang.org/pkg/text/template/#pkg-overview\] and jsonpath template \[http://kubernetes.io/docs/user-guide/jsonpath\].]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|wide|name|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...See custom columns \[http://kubernetes.io/docs/user-guide/kubectl-overview/#custom-columns\], golang template \[http://golang.org/pkg/text/template/#pkg-overview\] and jsonpath template \[http://kubernetes.io/docs/user-guide/jsonpath\].]:output_flag:__output_flag' \
             '--raw[Raw URI to POST to the server.  Uses the transport specified by the kubeconfig file.]' \
             '--record[Record current kubectl command in the resource annotation. If set to false, do not record the command. If set to true, record the command. If not set, default to updating the existing annotation value only if one already exists.]' \
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
@@ -968,7 +1001,7 @@ _kubectl(){
             '(-l --labels)'{-l,--labels}'[Labels to apply to the service created by this call.]' \
             '--load-balancer-ip[IP to assign to the LoadBalancer. If empty, an ephemeral IP will be created and used \(cloud-provider specific\).]' \
             '--name[The name for the newly created object.]' \
-            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template|go-template-file|template|templatefile|jsonpath|jsonpath-file.]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template|go-template-file|template|templatefile|jsonpath|jsonpath-file.]:output_flag:__output_flag' \
             '--overrides[An inline JSON override for the generated object. If this is non-empty, it is used to override the generated object. Requires that the object supply a valid apiVersion field. ]' \
             '--port[The port that the service should serve on. Copied from the resource being exposed, if unspecified]' \
             '--protocol[The network protocol for the service to be created. Default is '\''TCP'\''.]' \
@@ -1004,7 +1037,7 @@ _kubectl(){
             '(-l --labels)'{-l,--labels}'[Labels to apply to the service created by this call.]' \
             '--leave-stdin-open[ If the pod is started in interactive mode or with stdin, leave stdin open after the first attach completes. By default, stdin will be closed after the first attach completes.]' \
             '--limits[The resource requirement limits for this container.  For example, '\''cpu=200m,memory=512Mi'\''.  Note that server side components may assign limits depending on the server configuration, such as limit ranges.]' \
-            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|wide|name|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...See custom columns \[http://kubernetes.io/docs/user-guide/kubectl-overview/#custom-columns\], golang template \[http://golang.org/pkg/text/template/#pkg-overview\] and jsonpath template \[http://kubernetes.io/docs/user-guide/jsonpath\].]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|wide|name|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...See custom columns \[http://kubernetes.io/docs/user-guide/kubectl-overview/#custom-columns\], golang template \[http://golang.org/pkg/text/template/#pkg-overview\] and jsonpath template \[http://kubernetes.io/docs/user-guide/jsonpath\].]:output_flag:__output_flag' \
             '--overrides[An inline JSON override for the generated object. If this is non-empty, it is used to override the generated object. Requires that the object supply a valid apiVersion field. ]' \
             '--pod-running-timeout[The length of time (like 5s, 2m, or 3h, higher than zero) to wait until at least one pod is running]' \
             '--port[The port that this container exposes.  If --expose is true, this is also the port used by the service that is created.]' \
@@ -1052,7 +1085,7 @@ _kubectl(){
             '--include-uninitialized[If true, the kubectl command applies to uninitialized objects. If explicitly set to false, this flag overrides other flags that make the kubectl commands apply to uninitialized objects, e.g., \"--all\". Objects with empty metadata.initializers are regarded as initialized.]' \
             '(-L --label-columns)'{-L,--label-columns}'[Accepts a comma separated list of labels that are going to be presented as columns. Names are case-sensitive. You can also use multiple flag options like -L label1 -L label2...]' \
             '--no-headers[When using the default or custom-column output format, don'\''t print headers (default print headers).]' \
-            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|wide|name|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...See custom columns \[http://kubernetes.io/docs/user-guide/kubectl-overview/#custom-columns\], golang template \[http://golang.org/pkg/text/template/#pkg-overview\] and jsonpath template \[http://kubernetes.io/docs/user-guide/jsonpath\].]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|wide|name|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...See custom columns \[http://kubernetes.io/docs/user-guide/kubectl-overview/#custom-columns\], golang template \[http://golang.org/pkg/text/template/#pkg-overview\] and jsonpath template \[http://kubernetes.io/docs/user-guide/jsonpath\].]:output_flag:__output_flag' \
             '--raw[Raw URI to request from the server.  Uses the transport specified by the kubeconfig file.]' \
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
@@ -1074,7 +1107,7 @@ _kubectl(){
             '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
             '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to use to create the resource]:files:_files' \
             '--include-uninitialized[If true, the kubectl command applies to uninitialized objects. If explicitly set to false, this flag overrides other flags that make the kubectl commands apply to uninitialized objects, e.g., "--all". Objects with empty metadata.initializers are regarded as initialized.]' \
-            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|wide|name|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...See custom columns \[http://kubernetes.io/docs/user-guide/kubectl-overview/#custom-columns\], golang template \[http://golang.org/pkg/text/template/#pkg-overview\] and jsonpath template \[http://kubernetes.io/docs/user-guide/jsonpath\].]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|wide|name|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...See custom columns \[http://kubernetes.io/docs/user-guide/kubectl-overview/#custom-columns\], golang template \[http://golang.org/pkg/text/template/#pkg-overview\] and jsonpath template \[http://kubernetes.io/docs/user-guide/jsonpath\].]:output_flag:__output_flag' \
             '--output-patch[Output the patch if the resource is edited.]' \
             '--record[Record current kubectl command in the resource annotation. If set to false, do not record the command. If set to true, record the command. If not set, default to updating the existing annotation value only if one already exists.]' \
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
@@ -1097,7 +1130,7 @@ _kubectl(){
             '--ignore-not-found[Treat \"resource not found\" as a successful delete. Defaults to \"true\" when --all is specified.]' \
             '--include-uninitialized[If true, the kubectl command applies to uninitialized objects. If explicitly set to false, this flag overrides other flags that make the kubectl commands apply to uninitialized objects, e.g., "--all". Objects with empty metadata.initializers are regarded as initialized.]' \
             '--now[If true, resources are signaled for immediate shutdown (same as --grace-period=1).]' \
-            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|wide|name|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...See custom columns \[http://kubernetes.io/docs/user-guide/kubectl-overview/#custom-columns\], golang template \[http://golang.org/pkg/text/template/#pkg-overview\] and jsonpath template \[http://kubernetes.io/docs/user-guide/jsonpath\].]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|wide|name|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...See custom columns \[http://kubernetes.io/docs/user-guide/kubectl-overview/#custom-columns\], golang template \[http://golang.org/pkg/text/template/#pkg-overview\] and jsonpath template \[http://kubernetes.io/docs/user-guide/jsonpath\].]:output_flag:__output_flag' \
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--timeout[The length of time to wait before giving up on a delete, zero means determine a timeout from the size of the object]' \
@@ -1120,7 +1153,7 @@ _kubectl(){
             '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
             '--current-replicas[Precondition for current size. Requires that the current size of the resource match this value in order to scale.]' \
             '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files identifying the resource to set a new size]:files:_files' \
-            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template|go-template-file|template|templatefile|jsonpath|jsonpath-file.]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template|go-template-file|template|templatefile|jsonpath|jsonpath-file.]:output_flag:__output_flag' \
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
             '--resource-version[Requires that the current resource version match this value in order to scale.]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
@@ -1140,7 +1173,7 @@ _kubectl(){
             '--max[The upper limit for the number of pods that can be set by the autoscaler. Required.]' \
             '--min[The lower limit for the number of pods that can be set by the autoscaler. If it'\''s not specified or negative, the server will apply a default value.]' \
             '--name[The name for the newly created object. If not specified, the name of the input resource will be used.]' \
-            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]:output_flag:__output_flag' \
             '--record[Record current kubectl command in the resource annotation. If set to false, do not record the command. If set to true, record the command. If not set, default to updating the existing annotation value only if one already exists.]' \
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
             '--save-config[If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.]' \
@@ -1203,7 +1236,7 @@ _kubectl(){
             ${_global_flags[@]} \
             '--all[Select all nodes in the cluster]' \
             '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
-            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]:output_flag:__output_flag' \
             '--overwrite[If true, allow taints to be overwritten, otherwise reject taint updates that overwrite existing taints.]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
@@ -1299,7 +1332,7 @@ _kubectl(){
             '--grace-period[Period of time in seconds given to the resource to terminate gracefully. Ignored if negative. Set to 1 for immediate shutdown. Can only be set to 0 when --force is true (force deletion).]' \
             '--include-uninitialized[If true, the kubectl command applies to uninitialized objects. If explicitly set to false, this flag overrides other flags that make the kubectl commands apply to uninitialized objects, e.g., \"--all\". Objects with empty metadata.initializers are regarded as initialized.]' \
             '--openapi-patch[If true, use openapi to calculate diff when the openapi presents and the resource can be found in the openapi spec. Otherwise, fall back to use baked-in types.]' \
-            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]:output_flag:__output_flag' \
             '--overwrite[Automatically resolve conflicts between the modified and live configuration by using values from the modified configuration]' \
             '--prune[Automatically delete resource objects, including the uninitialized ones, that do not appear in the configs and are created by either apply or create --save-config. Should be used with either -l or --all.]' \
             '--prune-whitelist[Overwrite the default whitelist with <group/version/kind> for --prune]' \
@@ -1322,7 +1355,7 @@ _kubectl(){
             '--dry-run[If true, only print the object that would be sent, without sending it.]' \
             '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files identifying the resource to update]:files:_files' \
             '--local[If true, patch will operate on the content of the file, not the server-side resource.]' \
-            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]:output_flag:__output_flag' \
             '(-p --patch)'{-p,--patch}'[The patch to be applied to the resource JSON file.]' \
             '--record[Record current kubectl command in the resource annotation. If set to false, do not record the command. If set to true, record the command. If not set, default to updating the existing annotation value only if one already exists.]' \
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
@@ -1338,7 +1371,7 @@ _kubectl(){
             '(-f --filename)'{-f,--filename}'[to use to replace the resource.]' \
             '--force[If true, immediately remove resources from API and bypass graceful deletion. Note that immediate deletion of some resources may result in inconsistency or data loss and requires confirmation.]' \
             '--grace-period[Period of time in seconds given to the resource to terminate gracefully. Ignored if negative. Set to 1 for immediate shutdown. Can only be set to 0 when --force is true (force deletion).]' \
-            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]:output_flag:__output_flag' \
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
             '--save-config[If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.]' \
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
@@ -1353,7 +1386,7 @@ _kubectl(){
             '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
             '(-f --filename)'{-f,--filename}'[to use to replace the resource.]' \
             '--for[The condition to wait on: \[delete\|condition=condition-name\].]' \
-            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]:output_flag:__output_flag' \
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
             '(-l --selector)'{-l,--selector}'[Selector (label query) to filter on, supports '\''='\'', '\''=='\'', and '\''!='\''.(e.g. -l key1=value1,key2=value2)]' \
             '--template[Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
@@ -1366,7 +1399,7 @@ _kubectl(){
            '--allow-missing-template-keys[If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.]' \
            '(-f --filename)'{-f,--filename}'[Filename, directory, or URL to files to need to get converted.]' \
            '--local[If true, convert will NOT try to contact api-server but run locally.]' \
-           '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]' \
+           '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]:output_flag:__output_flag' \
            '--output-version[Output the formatted object with the given group version (for ex:'\''extensions/v1beta1'\'').)]' \
            '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
            '--template[Template string or path to template file to use when -o=go-template,-o=go-template-file. The template format is golang templates \[http://golang.org/pkg/text/template/#pkg-overview\].]' \
@@ -1383,7 +1416,7 @@ _kubectl(){
             '--include-uninitialized[If true, the kubectl command applies to uninitialized objects. If explicitly set to false, this flag overrides other flags that make the kubectl commands apply to uninitialized objects, e.g., \"\-\-all\". Objects with empty metadata.initializers are regarded as initialized.]' \
             '--list[If true, display the labels for a given resource.]' \
             '--local[If true, label will NOT contact api-server but run locally.]' \
-            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]:output_flag:__output_flag' \
             '--overwrite[If true, allow labels to be overwritten, otherwise reject label updates that overwrite existing labels.]' \
             '--record[Record current kubectl command in the resource annotation. If set to false, do not record the command. If set to true, record the command. If not set, default to updating the existing annotation value only if one already exists.]' \
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
@@ -1404,7 +1437,7 @@ _kubectl(){
             '--include-uninitialized[If true, the kubectl command applies to uninitialized objects. If explicitly set to false, this flag overrides other flags that make the kubectl commands apply to uninitialized objects, e.g., \"\-\-all\". Objects with empty metadata.initializers are regarded as initialized.]' \
             '--list[If true, display the labels for a given resource.]' \
             '--local[If true, label will NOT contact api-server but run locally.]' \
-            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]' \
+            '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]:output_flag:__output_flag' \
             '--overwrite[If true, allow labels to be overwritten, otherwise reject label updates that overwrite existing labels.]' \
             '--record[Record current kubectl command in the resource annotation. If set to false, do not record the command. If set to true, record the command. If not set, default to updating the existing annotation value only if one already exists.]' \
             '(-R --recursive)'{-R,--recursive}'[Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.]' \
@@ -1432,7 +1465,7 @@ _kubectl(){
            '--cached[Use the cached list of resources if available.]' \
            '--namespaced[If false, non-namespaced resources will be returned, otherwise returning namespaced resources by default]' \
            '--no-headers[When using the default or custom-column output format, don'\''t print headers(default print headers).]' \
-           '(-o --output)'{-o,--output}'[Output format. One of:json|yaml|name|go-template-file|templatefile|template|go-template|jsonpath|jsonpath-file.]' \
+           '(-o --output)'{-o,--output}'[Output format. One of: wide|name.]:output_flag:__output_flag' \
            '--verbs[Limit to resources that support the specified verbs.]' && ret=0
        ;;
        api-versions)
@@ -1453,7 +1486,7 @@ _kubectl(){
          _arguments \
            ${_global_flags[@]} \
            '--client[Client version only (no server required).]' \
-           '(-o --output)'{-o,--output}'[One of '\''yaml'\'' or '\''json'\'']' \
+           '(-o --output)'{-o,--output}'[One of '\''yaml'\'' or '\''json'\'']:output_flag:__output_flag' \
            '--short[Print just the version number.]' && ret=0
        ;;
       esac
