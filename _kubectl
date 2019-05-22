@@ -160,7 +160,10 @@ __kube_get_api_resources(){
       comment='kubectl explain RESOURCE [options]'
     ;;
     get)
-      comment='kubectl get [(-o|--output=)json|yaml|wide|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...](TYPE[.VERSION][.GROUP] [NAME | -l label] | TYPE[.VERSION][.GROUP]/NAME ...) [flags] [options'
+      comment='kubectl get [(-o|--output=)json|yaml|wide|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...](TYPE[.VERSION][.GROUP] [NAME | -l label] | TYPE[.VERSION][.GROUP]/NAME ...) [flags] [options]'
+    ;;
+    describe)
+      comment='kubectl describe (-f FILENAME | TYPE [NAME_PREFIX | -l label] | TYPE/NAME) [options]'
     ;;
     delete)
       comment='kubectl delete ([-f FILENAME] | TYPE [(NAME | -l label | --all)]) [options]'
