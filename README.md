@@ -4,7 +4,7 @@
 # nnao45/zsh-kubectl-completions
 Rich [zsh](http://zsh.org) completion for the [kubectl](https://kubernetes.io/docs/reference/kubectl) command.
 
-![GJF](https://github.com/nnao45/naoGifRepo/blob/master/_kubectl_comp_demo.gif)
+[![asciicast](https://asciinema.org/a/247650.svg)](https://asciinema.org/a/247650)
 
 # Version
 | kubectl | zsh-kubectl-completion |
